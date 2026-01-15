@@ -26,7 +26,9 @@ Create a singleton Database instance configured for SQLite with Write-Ahead Logg
 from peewee import SqliteDatabase
 from pathlib import Path
 
-database = SqliteDatabase(None)  # Path set at runtime
+# IMPORTANT: Enable foreign_keys in SQLite to ensure CASCADE delete works
+# SQLite by default has ON DELETE disabled, which can cause data integrity issues
+database = SqliteDatabase(None, pragmas={'foreign_keys': 1})
 
 def init_database(db_path: Path) -> None:
     """
@@ -39,7 +41,6 @@ def init_database(db_path: Path) -> None:
 
     # Enable WAL mode for better concurrent read performance
     database.execute_sql('PRAGMA journal_mode=WAL')
-    database.execute_sql('PRAGMA foreign_keys=ON')
     database.execute_sql('PRAGMA synchronous=NORMAL')
     database.execute_sql('PRAGMA busy_timeout=5000')
 
@@ -69,7 +70,7 @@ def get_database() -> SqliteDatabase:
 ### PRAGMA Configuration Rationale
 
 - **`journal_mode=WAL`**: Write-Ahead Logging for concurrent reads
-- **`foreign_keys=ON`**: Enable referential integrity
+- **`foreign_keys=1`**: **CRITICAL** - Enable referential integrity. Without this, CASCADE delete will NOT work in SQLite and data can be silently relinked
 - **`synchronous=NORMAL`**: Balance between safety and performance
 - **`busy_timeout=5000`**: Wait 5 seconds before failing on lock
 
@@ -84,7 +85,6 @@ def get_database() -> SqliteDatabase:
 ```python
 from peewee import *
 from datetime import date, datetime
-from utils.uuid import UUIDField  # Custom UUID field
 from employee.constants import (
     EmployeeStatus,
     ContractType,
@@ -93,11 +93,12 @@ from employee.constants import (
 class Employee(Model):
     """Core employee entity with business logic."""
 
-    # Primary Key
+    # Primary Key - UUIDField is native in Peewee
+    # In SQLite/MySQL it's stored as VARCHAR, in Postgres as native UUID
     id = UUIDField(primary=True)
 
     # Identification
-    external_id = CharField(null=True, index=True)  # WMS reference (manual entry)
+    external_id = CharField(null=True, index=True, unique=True)  # WMS reference
     first_name = CharField()
     last_name = CharField()
 
@@ -165,16 +166,8 @@ class Employee(Model):
         """Get employees by contract type."""
         return cls.select().where(cls.contract_type == contract_type)
 
-    @classmethod
-    def with_expiring_certifications(cls, days=30):
-        """
-        Complex query: employees with certifications expiring soon.
-
-        Returns employees with at least one CACES, medical visit,
-        or training expiring within the specified days.
-        """
-        from employee.queries import get_employees_with_expiring_items
-        return get_employees_with_expiring_items(days)
+    # Note: Complex multi-table queries like with_expiring_certifications
+    # will be implemented in employee/queries.py to avoid circular imports
 
     # ========== INSTANCE METHODS ==========
 
@@ -209,43 +202,33 @@ class Employee(Model):
             certificate_path=certificate_path
         )
 
-    def get_alerts(self, thresholds_days=[30, 60, 90]):
-        """
-        Get all alerts for this employee.
+    # ========== HOOKS (Not validate() method) ==========
 
-        Returns list of dicts with alert information:
-        - type: 'caces', 'medical', 'training'
-        - item: the actual model instance
-        - severity: 'critical', 'warning', 'info'
-        - days_until: days until expiration
-        """
-        from employee.calculations import get_employee_alerts
-        return get_employee_alerts(self, thresholds_days)
-
-    # ========== VALIDATION ==========
-
-    def validate(self):
-        """Custom validation logic before save."""
+    def before_save(self):
+        """Validation logic using Peewee hooks."""
         if self.entry_date > date.today():
             raise ValueError("Entry date cannot be in the future")
 
-        if self.external_id:
-            # Check uniqueness of external_id
-            existing = Employee.select().where(
-                (Employee.external_id == self.external_id) &
-                (Employee.id != self.id)
-            ).first()
-            if existing:
-                raise ValueError("External ID already exists")
-
     def save(self, force_insert=False, only=None):
-        """Override save to update updated_at and validate."""
+        """Override save to update updated_at timestamp."""
         self.updated_at = datetime.now()
-        self.validate()
         return super().save(force_insert=force_insert, only=only)
 ```
 
 ### Relationships
+
+```python
+# Back-references are AUTOMATICALLY created by ForeignKeyField
+# No need to declare them in Employee model
+
+# Access related objects:
+employee = Employee.get_by_id(123)
+caces_list = employee.caces           # Auto-created from Caces.employee ForeignKey
+visits = employee.medical_visits       # Auto-created from MedicalVisit.employee ForeignKey
+trainings = employee.trainings         # Auto-created from OnlineTraining.employee ForeignKey
+```
+
+### Relationship Summary
 
 ```
 Employee (1) ----< (N) Caces
@@ -262,6 +245,8 @@ Employee (1) ----< (N) OnlineTraining
 ### Model Structure
 
 ```python
+from dateutil.relativedelta import relativedelta
+
 class Caces(Model):
     """
     CACES certification (Certificat d'Aptitude à la Conduite En Sécurité).
@@ -340,14 +325,16 @@ class Caces(Model):
             completion_date: Date when certification was obtained
 
         Returns:
-            Expiration date
+            Expiration date (handles leap years correctly)
         """
         if kind in ['R489-1A', 'R489-1B', 'R489-3', 'R489-4']:
             years = 5
         else:
             years = 10
 
-        return completion_date + timedelta(days=years * 365)
+        # Use relativedelta to handle leap years correctly
+        # This is more accurate than timedelta(days=years*365)
+        return completion_date + relativedelta(years=years)
 
     @classmethod
     def expiring_soon(cls, days=30):
@@ -469,14 +456,15 @@ class MedicalVisit(Model):
             visit_date: Date when visit occurred
 
         Returns:
-            Expiration date
+            Expiration date (handles leap years correctly)
         """
         if visit_type == 'recovery':
             years = 1
         else:  # initial or periodic
             years = 2
 
-        return visit_date + timedelta(days=years * 365)
+        # Use relativedelta to handle leap years correctly
+        return visit_date + relativedelta(years=years)
 
     @classmethod
     def expiring_soon(cls, days=30):
@@ -602,17 +590,8 @@ class OnlineTraining(Model):
         if validity_months is None:
             return None
 
-        # Add months to date
-        year = completion_date.year
-        month = completion_date.month + validity_months
-
-        # Handle year overflow
-        while month > 12:
-            month -= 12
-            year += 1
-
-        # Keep same day of month
-        return date(year, month, completion_date.day)
+        # Use relativedelta for accurate month addition
+        return completion_date + relativedelta(months=validity_months)
 
     @classmethod
     def expiring_soon(cls, days=30):
@@ -680,12 +659,13 @@ class AppLock(Model):
     # ========== COMPUTED PROPERTIES ==========
 
     @property
-    def is_stale(self, timeout_minutes=15) -> bool:
+    def is_stale(self, timeout_minutes=2) -> bool:
         """
         Check if lock is stale (no recent heartbeat).
 
         Args:
-            timeout_minutes: Minutes of inactivity before considering lock stale
+            timeout_minutes: Minutes of inactivity before considering lock stale.
+                            Default: 2 minutes (allows 4 missed heartbeats)
 
         Returns:
             True if lock is stale and can be safely overridden
@@ -696,12 +676,12 @@ class AppLock(Model):
     @property
     def age_seconds(self) -> int:
         """Age of lock in seconds since acquisition."""
-        return (datetime.now() - self.locked_at).seconds
+        return int((datetime.now() - self.locked_at).total_seconds())
 
     @property
     def heartbeat_age_seconds(self) -> int:
         """Seconds since last heartbeat."""
-        return (datetime.now() - self.last_heartbeat).seconds
+        return int((datetime.now() - self.last_heartbeat).total_seconds())
 
     # ========== CLASS METHODS ==========
 
@@ -730,7 +710,7 @@ class AppLock(Model):
         if existing and not existing.is_stale:
             raise RuntimeError(
                 f"Lock is held by {existing.hostname} "
-                f"(since {existing.locked_at})"
+                f"(since {existing.locked_at.strftime('%H:%M:%S')})"
             )
 
         # Remove stale lock if exists
@@ -789,7 +769,7 @@ class AppLock(Model):
             return False
 
         lock.last_heartbeat = datetime.now()
-        lock.save()
+        lock.save(only=[AppLock.last_heartbeat])  # Only update heartbeat field
         return True
 
     @classmethod
@@ -816,8 +796,13 @@ The locking system uses a heartbeat to detect crashed applications:
 
 1. **Lock acquisition**: Create AppLock record with current timestamp
 2. **Heartbeat**: Every 30 seconds, update `last_heartbeat` field
-3. **Stale detection**: If `last_heartbeat` > 15 minutes ago, lock is considered stale
+3. **Stale detection**: If `last_heartbeat` > 2 minutes ago (4 missed heartbeats), lock is considered stale
 4. **Lock override**: Stale locks can be safely overridden by new users
+
+**Frequency Rationale**:
+- Heartbeat every 30 seconds: Lightweight network traffic
+- Timeout after 2 minutes: Allows for brief network hiccups (4 missed heartbeats)
+- Balance between quick crash detection and tolerance of temporary network issues
 
 ---
 
@@ -865,6 +850,22 @@ CACES_TYPES = [
     'R489-5',   # Side-loading forklift
 ]
 
+# CACES validity periods in years (configurable in future)
+CACES_VALIDITY_YEARS = {
+    'R489-1A': 5,
+    'R489-1B': 5,
+    'R489-3': 5,
+    'R489-4': 5,
+    'R489-5': 10,  # Different validity period
+}
+
+# Medical visit validity periods in years
+VISIT_VALIDITY_YEARS = {
+    'initial': 2,
+    'periodic': 2,
+    'recovery': 1,
+}
+
 # Default workspaces (configurable in config.json)
 DEFAULT_WORKSPACES = [
     'Quai',
@@ -883,81 +884,81 @@ DEFAULT_ROLES = [
 
 ---
 
-## 8. Model Relationships Diagram
+## 8. N+1 Query Performance
 
-```
-┌─────────────┐
-│   Employee  │
-│             │
-│ - id (UUID) │
-│ - first_name│
-│ - last_name │
-│ - status    │
-│ - workspace │
-│ - role      │
-│ - contract  │
-│ - entry_date│
-└──────┬──────┘
-       │
-       ├──────────────────────────────────────┐
-       │                                      │
-       ▼                                      ▼
-┌──────────────┐                    ┌──────────────┐
-│    Caces     │                    │ MedicalVisit │
-│              │                    │              │
-│ - id         │                    │ - id         │
-│ - employee   │◄──────────────────│ - employee   │
-│ - kind       │                    │ - visit_type │
-│ - completion │                    │ - visit_date │
-│ - expiration │                    │ - result     │
-│ - document   │                    │ - document  │
-└──────────────┘                    └──────────────┘
+### Problem
 
-       │
-       ▼
-┌──────────────────┐
-│ OnlineTraining   │
-│                  │
-│ - id             │
-│ - employee       │◄──────────────────┐
-│ - title          │                    │
-│ - completion     │                    │
-│ - validity_month │                    │
-│ - expiration     │                    │
-│ - certificate    │                    │
-└──────────────────┘                    │
-                                        │
-┌──────────────────┐                    │
-│     AppLock      │ (Independent)      │
-│                  │                    │
-│ - id             │                    │
-│ - hostname       │                    │
-│ - username       │                    │
-│ - locked_at      │                    │
-│ - heartbeat      │                    │
-│ - process_id     │                    │
-└──────────────────┘                    │
-                                        │
-          All models use:                │
-          - UUIDField (primary key)      │
-          - created_at timestamp         │
-          - Foreign key CASCADE delete   │
+Peewee's default lazy loading can cause N+1 query problems:
+
+```python
+# ❌ BAD: N+1 queries
+employees = Employee.select()
+for emp in employees:
+    print(emp.caces)  # Each access triggers a new query!
 ```
+
+### Solution: Use prefetch() for relations
+
+```python
+# ✅ GOOD: Single query with prefetch
+from peewee import prefetch
+
+employees = Employee.select()
+# Prefetch related Caces, MedicalVisit, OnlineTraining
+employees_with_data = prefetch(employees, Caces, MedicalVisit, OnlineTraining)
+
+for emp in employees_with_data:
+    print(emp.caces)  # Already loaded, no extra query!
+```
+
+### Solution: Use join() when filtering
+
+```python
+# ✅ GOOD: Join to filter by related data
+query = (Employee
+         .select(Employee, Caces)
+         .join(Caces)
+         .where(Caces.kind == 'R489-1A'))
+```
+
+**Note**: Document these patterns in `employee/queries.py` when implemented.
 
 ---
 
-## 9. Implementation Order
+## 9. CASCADE Delete Warning
+
+⚠️ **IMPORTANT**: CASCADE delete is configured on all foreign keys.
+
+**What this means**:
+- When you delete an Employee, ALL their CACES, MedicalVisit, and OnlineTraining records are automatically deleted
+- This cannot be undone
+- No confirmation is asked by the database
+
+**Risk**:
+- Accidental employee deletion = permanent loss of all certification and medical history
+
+**Mitigation strategies**:
+1. **UI-level confirmation**: Always show a warning dialog before deleting
+2. **Soft delete consideration**: Consider adding `deleted_at` column instead of hard delete
+3. **Backup strategy**: Regular database backups for recovery
+4. **Audit trail**: Log all deletions with timestamp and user
+
+**Alternative**: If you want to prevent accidental deletion, remove `on_delete='CASCADE'` and handle orphaned records manually or add application-level checks.
+
+---
+
+## 10. Implementation Order
 
 Models should be implemented in this order:
 
 1. **`src/database/connection.py`**
-   - Database singleton
+   - Database singleton with `pragmas={'foreign_keys': 1}`
    - `init_database()` function
    - PRAGMA configuration
 
 2. **`src/employee/constants.py`**
    - All enum classes
-   - CACES types
+   - CACES types and validity periods
    - Default values
 
 3. **`src/employee/models.py`**
@@ -974,10 +975,12 @@ Models should be implemented in this order:
    - Test relationships
    - Test computed properties
    - Test class methods
+   - Test CASCADE delete behavior
+   - Test lock heartbeat mechanism
 
 ---
 
-## 10. Design Decisions
+## 11. Design Decisions
 
 ### Why UUID instead of Auto-increment?
 
@@ -985,13 +988,16 @@ Models should be implemented in this order:
 - **Distribution**: Safe for distributed systems (future-proof)
 - **Collision resistance**: Virtually impossible to collide
 - **Standard**: Modern best practice for primary keys
+- **Peewee native**: `UUIDField` is built into Peewee (stored as VARCHAR in SQLite)
 
 ### Why CASCADE delete?
 
 - **Referential integrity**: Prevent orphaned records
 - **Clean deletion**: Deleting employee removes all related data
 - **Simplicity**: No need for manual cleanup
-- **User expectation**: When deleting employee, expect all related data to disappear
+- **Risk**: Accidental deletion loses all related data (see warning above)
+
+**Alternative**: Soft delete with `deleted_at` column if accidental deletion is a concern.
 
 ### Why hard delete (not soft delete)?
 
@@ -1007,33 +1013,62 @@ Models should be implemented in this order:
 - **SQLite**: Limited timezone support
 - **Use case**: All users in same timezone (warehouse)
 
+### Why relativedelta over timedelta for dates?
+
+- **Accuracy**: `timedelta(days=365*5)` doesn't account for leap years
+- **Correctness**: `relativedelta(years=5)` handles leap years properly
+- **Example**: Feb 29, 2020 + 5 years = Feb 28, 2025 (not an error)
+- **Dependency**: Requires `python-dateutil` package
+
+### Why heartbeats every 30s with 2-minute timeout?
+
+- **Network tolerance**: Allows 4 missed heartbeats before timeout
+- **Quick crash detection**: 2 minutes is reasonable for stale lock detection
+- **Lightweight**: 30-second heartbeat is minimal network traffic
+- **Balance**: Not too aggressive (prevents false positives), not too slow
+
 ---
 
-## 11. Next Steps After Models
+## 12. Dependencies Required
+
+Add to `pyproject.toml`:
+
+```toml
+dependencies = [
+    "peewee>=3.17.0",
+    "python-dateutil>=2.8.0",  # For relativedelta (accurate date calculations)
+    # ... other dependencies
+]
+```
+
+---
+
+## 13. Next Steps After Models
 
 Once models are implemented:
 
 1. **`src/employee/queries.py`**
-   - Complex multi-table queries
-   - Optimized queries for UI
-   - Join queries
+   - Complex multi-table queries (e.g., `with_expiring_certifications`)
+   - Optimized queries using `prefetch()` and `join()`
+   - Query builders for common patterns
 
 2. **`src/employee/calculations.py`**
    - Alert calculation logic
-   - Seniority calculations
-   - Status determination
+   - Seniority calculations (if more complex than model property)
+   - Status determination functions
 
 3. **`src/employee/validators.py`**
-   - Custom Peewee validators
+   - Custom Peewee validators using `peewee.ValidationError`
    - Business rule validation
    - Data integrity checks
 
 4. **`src/lock/manager.py`**
-   - Lock management logic
-   - Heartbeat timer
-   - Stale lock cleanup
+   - Lock management logic (wraps AppLock model)
+   - Heartbeat timer implementation
+   - Stale lock cleanup routine
 
 5. **Tests**
    - Unit tests for all models
-   - Integration tests for queries
-   - Lock mechanism tests
+   - Integration tests for queries with `prefetch()`
+   - Lock mechanism tests (heartbeat, stale detection)
+   - CASCADE delete behavior tests
