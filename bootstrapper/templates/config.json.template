@@ -1,0 +1,8 @@
+{
+  "alert_thresholds_days": [30, 60, 90],
+  "lock_timeout_minutes": 15,
+  "export_filename_template": "employees_export_{date}.xlsx",
+  "roles": ["Préparateur", "Réceptionnaire", "Cariste"],
+  "workspaces": ["Quai", "Zone A", "Zone B", "Bureau"],
+  "log_level": "INFO"
+}

@@ -1,0 +1,21 @@
+# Warehouse Employee Management System
+
+This is an instance of the Employee Management System for warehouse operations.
+
+## Quick Start
+
+1. Double-click `src/employee_manager.exe` to launch the application
+2. The application will automatically create the database structure on first run
+3. Refer to `config.json` for configuration options
+
+## Configuration
+
+Edit `config.json` to customize:
+- Alert thresholds
+- Lock timeout
+- Export filename templates
+- Available roles and workspaces
+
+## Support
+
+For issues or questions, contact your system administrator.
