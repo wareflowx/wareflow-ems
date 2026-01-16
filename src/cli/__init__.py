@@ -1,6 +1,10 @@
 """CLI commands for Simple Employee Manager."""
 
-from cli_main import app
+# This package contains CLI command modules but doesn't export app
+# to avoid circular import with cli_main
+# Import app directly from cli_main instead
 
-__all__ = ['app']
+from . import employee, caces, medical, training, report, lock
+
+__all__ = ['employee', 'caces', 'medical', 'training', 'report', 'lock']
 

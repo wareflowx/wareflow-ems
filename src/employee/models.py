@@ -158,7 +158,7 @@ class Caces(Model):
     expiration_date = DateField(index=True)
 
     # Document
-    document_path = CharField()
+    document_path = CharField(null=True)
 
     # Metadata
     created_at = DateTimeField(default=datetime.now)
@@ -282,7 +282,7 @@ class MedicalVisit(Model):
     result = CharField()  # 'fit', 'unfit', 'fit_with_restrictions'
 
     # Document
-    document_path = CharField()
+    document_path = CharField(null=True)
 
     # Metadata
     created_at = DateTimeField(default=datetime.now)

@@ -30,13 +30,13 @@ def list(
     elif status == "inactive":
         query = query.where(Employee.current_status == 'inactive')
 
-    if role:
+    if role is not None and isinstance(role, str):
         query = query.where(Employee.role.contains(role))
 
-    if workspace:
+    if workspace is not None and isinstance(workspace, str):
         query = query.where(Employee.workspace.contains(workspace))
 
-    employees = list(query)
+    employees = [e for e in query]
 
     if not employees:
         typer.echo("Aucun employé trouvé.")
@@ -182,15 +182,15 @@ def update(
     # Track changes
     changes = []
 
-    if workspace:
+    if workspace is not None and isinstance(workspace, str):
         employee.workspace = workspace
         changes.append(f"Zone → {workspace}")
 
-    if role:
+    if role is not None and isinstance(role, str):
         employee.role = role
         changes.append(f"Poste → {role}")
 
-    if status:
+    if status is not None and isinstance(status, str):
         if status not in ['active', 'inactive']:
             typer.echo("❌ Statut doit être 'active' ou 'inactive'", err=True)
             raise typer.Exit(1)

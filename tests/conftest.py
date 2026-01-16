@@ -73,6 +73,7 @@ def sample_employee(db):
     employee = Employee.create(
         first_name='John',
         last_name='Doe',
+        external_id='EMP001',
         current_status='active',
         workspace='Quai',
         role='Préparateur',
@@ -90,6 +91,7 @@ def inactive_employee(db):
     employee = Employee.create(
         first_name='Jane',
         last_name='Smith',
+        external_id='EMP002',
         current_status='inactive',
         workspace='Bureau',
         role='Réceptionnaire',

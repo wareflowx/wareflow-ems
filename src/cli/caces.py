@@ -22,7 +22,7 @@ def list(employee_id: str = typer.Argument(..., help="ID WMS de l'employé")):
         typer.echo(f"❌ Employé {employee_id} non trouvé", err=True)
         raise typer.Exit(1)
 
-    caces_list = list(employee.caces)
+    caces_list = [c for c in employee.caces]
 
     if not caces_list:
         typer.echo(f"Aucun CACES pour {employee.full_name}")
@@ -95,11 +95,11 @@ def update(
     # Track changes
     changes = []
 
-    if kind:
+    if kind is not None and isinstance(kind, str):
         caces.kind = kind
         changes.append(f"Type → {kind}")
 
-    if completion_date:
+    if completion_date is not None and isinstance(completion_date, str):
         try:
             new_date = date.fromisoformat(completion_date)
             caces.completion_date = new_date
@@ -108,7 +108,7 @@ def update(
             typer.echo(f"❌ Format de date invalide: {completion_date}. Utilisez YYYY-MM-DD", err=True)
             raise typer.Exit(1)
 
-    if document:
+    if document is not None:
         caces.document_path = str(document)
         changes.append(f"Document → {document}")
 

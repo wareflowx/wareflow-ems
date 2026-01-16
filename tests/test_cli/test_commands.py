@@ -6,10 +6,15 @@ from pathlib import Path
 import tempfile
 from datetime import date
 
-import cli
-from cli import app
+from cli_main import app
 
 runner = CliRunner()
+
+
+def assert_in_output(result, message: str):
+    """Helper to check if message is in stdout or stderr."""
+    combined = result.stdout + (result.stderr or '')
+    assert message.lower() in combined.lower(), f"Expected '{message}' in output, got: {combined}"
 
 
 class TestCLIBasics:
@@ -55,7 +60,7 @@ class TestEmployeeCommands:
         """Should show error for non-existent employee."""
         result = runner.invoke(app, ["employee", "show", "NONEXISTENT"])
         assert result.exit_code == 1
-        assert "non trouvé" in result.stdout.lower()
+        assert_in_output(result, "non trouvé")
 
     def test_add_employee_non_interactive(self, db):
         """Should add employee with flags."""
@@ -86,7 +91,7 @@ class TestEmployeeCommands:
             "--entry-date", "2020-01-15"
         ])
         assert result.exit_code == 1
-        assert "existe déjà" in result.stdout.lower()
+        assert_in_output(result, "existe déjà")
 
     def test_add_employee_missing_fields(self, db):
         """Should show error for missing required fields."""
@@ -96,7 +101,7 @@ class TestEmployeeCommands:
             "--last-name", "User"
         ])
         assert result.exit_code == 1
-        assert "requis" in result.stdout.lower()
+        assert_in_output(result, "requis")
 
     def test_update_employee(self, db, sample_employee):
         """Should update employee."""
@@ -231,7 +236,7 @@ class TestCacesCommands:
             "--completion-date", "invalid-date"
         ])
         assert result.exit_code == 1
-        assert "Format de date invalide" in result.stdout
+        assert_in_output(result, "Format de date invalide")
 
     def test_add_caces_nonexistent_employee(self, db):
         """Should show error for non-existent employee."""
@@ -241,7 +246,7 @@ class TestCacesCommands:
             "--completion-date", "2020-03-01"
         ])
         assert result.exit_code == 1
-        assert "non trouvé" in result.stdout
+        assert_in_output(result, "non trouvé")
 
     def test_expiring_caces_empty(self, db):
         """Should show message when no expiring CACES."""
@@ -289,7 +294,7 @@ class TestMedicalCommands:
             "--result", "fit"
         ])
         assert result.exit_code == 1
-        assert "invalide" in result.stdout
+        assert_in_output(result, "invalide")
 
     def test_add_visit_invalid_result(self, db, sample_employee):
         """Should show error for invalid result."""
@@ -300,7 +305,7 @@ class TestMedicalCommands:
             "--result", "invalid"
         ])
         assert result.exit_code == 1
-        assert "invalide" in result.stdout
+        assert_in_output(result, "invalide")
 
     def test_expiring_visits_empty(self, db):
         """Should show message when no expiring visits."""
@@ -360,7 +365,8 @@ class TestTrainingCommands:
             "--completion-date", "2024-01-15"
         ])
         assert result.exit_code == 1
-        assert "permanent" in result.stdout.lower() or "validity" in result.stdout.lower()
+        assert_in_output(result, "permanent")
+        assert_in_output(result, "validity")
 
     def test_expiring_trainings_empty(self, db):
         """Should show message when no expiring trainings."""

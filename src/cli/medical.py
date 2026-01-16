@@ -22,7 +22,7 @@ def list(employee_id: str = typer.Argument(..., help="ID WMS de l'employé")):
         typer.echo(f"❌ Employé {employee_id} non trouvé", err=True)
         raise typer.Exit(1)
 
-    visits = list(employee.medical_visits)
+    visits = [v for v in employee.medical_visits]
 
     if not visits:
         typer.echo(f"Aucune visite pour {employee.full_name}")
@@ -109,14 +109,14 @@ def update(
     # Track changes
     changes = []
 
-    if visit_type:
+    if visit_type is not None and isinstance(visit_type, str):
         if visit_type not in ['initial', 'periodic', 'recovery']:
             typer.echo("❌ Type de visite invalide. Options: initial, periodic, recovery", err=True)
             raise typer.Exit(1)
         visit.visit_type = visit_type
         changes.append(f"Type → {visit_type}")
 
-    if visit_date:
+    if visit_date is not None and isinstance(visit_date, str):
         try:
             new_date = date.fromisoformat(visit_date)
             visit.visit_date = new_date
@@ -125,14 +125,14 @@ def update(
             typer.echo(f"❌ Format de date invalide: {visit_date}. Utilisez YYYY-MM-DD", err=True)
             raise typer.Exit(1)
 
-    if result:
+    if result is not None and isinstance(result, str):
         if result not in ['fit', 'unfit', 'fit_with_restrictions']:
             typer.echo("❌ Résultat invalide. Options: fit, unfit, fit_with_restrictions", err=True)
             raise typer.Exit(1)
         visit.result = result
         changes.append(f"Résultat → {result}")
 
-    if document:
+    if document is not None:
         visit.document_path = str(document)
         changes.append(f"Document → {document}")
 

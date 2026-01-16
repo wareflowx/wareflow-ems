@@ -29,7 +29,7 @@ def dashboard():
     expired_trainings = 0
     critical_trainings = 0
 
-    employees = list(Employee.select())
+    employees = [e for e in Employee.select()]
 
     for emp in employees:
         # CACES
@@ -81,7 +81,7 @@ def alerts(
     warning_days: int = typer.Option(30, "--warning-days", help="Jours pour alerte warning")
 ):
     """Afficher les alertes d'items expirants."""
-    employees = list(Employee.select())
+    employees = [e for e in Employee.select()]
     typer.echo(format_alerts(employees, critical_days, warning_days))
 
 
@@ -97,7 +97,7 @@ def export(
     output_path = output_path.resolve()
 
     # Get all employees
-    employees = list(Employee.select())
+    employees = [e for e in Employee.select()]
 
     if not employees:
         typer.echo("❌ Aucun employé à exporter", err=True)
@@ -210,7 +210,7 @@ def unfit():
 @app.command()
 def compliance_summary():
     """Afficher le résumé de compliance global."""
-    employees = list(Employee.select())
+    employees = [e for e in Employee.select()]
 
     compliant_count = 0
     warning_count = 0

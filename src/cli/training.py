@@ -22,7 +22,7 @@ def list(employee_id: str = typer.Argument(..., help="ID WMS de l'employé")):
         typer.echo(f"❌ Employé {employee_id} non trouvé", err=True)
         raise typer.Exit(1)
 
-    trainings = list(employee.trainings)
+    trainings = [t for t in employee.trainings]
 
     if not trainings:
         typer.echo(f"Aucune formation pour {employee.full_name}")
@@ -113,11 +113,11 @@ def update(
     # Track changes
     changes = []
 
-    if title:
+    if title is not None and isinstance(title, str):
         training.title = title
         changes.append(f"Titre → {title}")
 
-    if completion_date:
+    if completion_date is not None and isinstance(completion_date, str):
         try:
             new_date = date.fromisoformat(completion_date)
             training.completion_date = new_date
@@ -130,11 +130,11 @@ def update(
         training.validity_months = None
         changes.append("Statut → Permanent")
 
-    if validity_months:
+    if validity_months is not None and isinstance(validity_months, int):
         training.validity_months = validity_months
         changes.append(f"Validité → {validity_months} mois")
 
-    if certificate:
+    if certificate is not None:
         training.certificate_path = str(certificate)
         changes.append(f"Certificat → {certificate}")
 
