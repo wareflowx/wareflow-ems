@@ -264,7 +264,7 @@ class TestGetUnfitEmployees:
         # Create unfit visit
         MedicalVisit.create(
             employee=employee,
-            visit_type='recovery',
+            visit_type='periodic',  # Changed from 'recovery' (recovery must have restrictions)
             visit_date=date.today(),
             result='unfit',
             document_path='/test.pdf'
@@ -353,7 +353,7 @@ class TestGetDashboardStatistics:
         # Create unfit visit
         MedicalVisit.create(
             employee=inactive_emp,
-            visit_type='recovery',
+            visit_type='periodic',  # Changed from 'recovery' (recovery must have restrictions)
             visit_date=date.today(),
             result='unfit',
             document_path='/test.pdf'
