@@ -130,8 +130,43 @@ class Employee(Model):
 
     def before_save(self):
         """Validation logic using Peewee hooks."""
-        if self.entry_date > date.today():
-            raise ValueError("Entry date cannot be in the future")
+        from .validators import (
+            ValidationError as ModelValidationError,
+            validate_external_id,
+            validate_entry_date,
+            UniqueValidator,
+        )
+
+        # Validate external_id format if provided
+        if self.external_id:
+            try:
+                self.external_id = validate_external_id(self.external_id)
+            except ModelValidationError as e:
+                # Convert to ValueError for Peewee compatibility
+                raise ValueError(str(e))
+
+            # Check uniqueness (only if external_id has changed or is new)
+            if self.id:
+                # Update: exclude current instance
+                validator = UniqueValidator(Employee, Employee.external_id, exclude_instance=self)
+                try:
+                    validator.validate(self.external_id)
+                except ModelValidationError as e:
+                    raise ValueError(str(e))
+            else:
+                # New record: check all records
+                validator = UniqueValidator(Employee, Employee.external_id)
+                try:
+                    validator.validate(self.external_id)
+                except ModelValidationError as e:
+                    raise ValueError(str(e))
+
+        # Validate entry_date
+        if self.entry_date:
+            try:
+                self.entry_date = validate_entry_date(self.entry_date)
+            except ModelValidationError as e:
+                raise ValueError(str(e))
 
     def save(self, force_insert=False, only=None):
         """Override save to update updated_at timestamp and validate."""
@@ -248,7 +283,17 @@ class Caces(Model):
     # ========== HOOKS ==========
 
     def before_save(self):
-        """Calculate expiration_date before saving if not set."""
+        """Validate CACES kind and calculate expiration_date before saving."""
+        from .validators import ValidationError as ModelValidationError, validate_caces_kind
+
+        # Validate CACES kind
+        if self.kind:
+            try:
+                self.kind = validate_caces_kind(self.kind)
+            except ModelValidationError as e:
+                raise ValueError(str(e))
+
+        # Calculate expiration_date if not set
         if not self.expiration_date:
             self.expiration_date = self.calculate_expiration(
                 self.kind,
@@ -360,7 +405,20 @@ class MedicalVisit(Model):
     # ========== HOOKS ==========
 
     def before_save(self):
-        """Calculate expiration_date before saving if not set."""
+        """Validate visit consistency and calculate expiration_date before saving."""
+        from .validators import ValidationError as ModelValidationError, validate_medical_visit_consistency
+
+        # Validate visit type and result consistency
+        if self.visit_type and self.result:
+            try:
+                self.visit_type, self.result = validate_medical_visit_consistency(
+                    self.visit_type,
+                    self.result
+                )
+            except ModelValidationError as e:
+                raise ValueError(str(e))
+
+        # Calculate expiration_date if not set
         if not self.expiration_date:
             self.expiration_date = self.calculate_expiration(
                 self.visit_type,
