@@ -182,6 +182,17 @@ class DashboardView:
             )
             self.page.update()
 
+        def navigate_to_alerts(e):
+            """Navigate to alerts view."""
+            self.page.clean()
+            from ui.views.alerts import AlertsView
+            alerts_view = AlertsView(self.page)
+            self.page.add(
+                ft.AppBar(title=ft.Text("Employee Manager")),
+                alerts_view.build(),
+            )
+            self.page.update()
+
         return ft.Row(
             [
                 ft.ElevatedButton(
@@ -195,6 +206,7 @@ class DashboardView:
                 ),
                 ft.ElevatedButton(
                     "⚠️ View All Alerts",
+                    on_click=navigate_to_alerts,
                 ),
                 ft.ElevatedButton(
                     "📥 Export Report",
