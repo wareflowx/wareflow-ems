@@ -25,87 +25,6 @@ def ensure_database():
         print(f"Database initialized: {db_path}")
 
 
-def route_change(route: str, page: ft.Page, app_state):
-    """Handle route changes and build views accordingly."""
-    page.views.clear()
-
-    # Dashboard view
-    if page.route == "/":
-        page.views.append(
-            ft.View(
-                "/",
-                [
-                    ft.AppBar(title=ft.Text("Employee Manager")),
-                    ft.Text("Dashboard", size=32, weight=ft.FontWeight.BOLD),
-                    ft.Text("Coming soon...", size=16),
-                ],
-            )
-        )
-
-    # Employees list view
-    elif page.route == "/employees":
-        page.views.append(
-            ft.View(
-                "/employees",
-                [
-                    ft.AppBar(title=ft.Text("Employees")),
-                    ft.Text("Employees", size=32, weight=ft.FontWeight.BOLD),
-                    ft.Text("Coming soon...", size=16),
-                ],
-            )
-        )
-
-    # Employee detail view
-    elif page.route.startswith("/employee/"):
-        emp_id = page.route.split("/")[-1]
-        page.views.append(
-            ft.View(
-                page.route,
-                [
-                    ft.AppBar(title=ft.Text(f"Employee {emp_id}")),
-                    ft.Text(f"Employee {emp_id}", size=32, weight=ft.FontWeight.BOLD),
-                    ft.Text("Coming soon...", size=16),
-                ],
-            )
-        )
-
-    # Documents view
-    elif page.route == "/documents":
-        page.views.append(
-            ft.View(
-                "/documents",
-                [
-                    ft.AppBar(title=ft.Text("Documents")),
-                    ft.Text("Documents", size=32, weight=ft.FontWeight.BOLD),
-                    ft.Text("Coming soon...", size=16),
-                ],
-            )
-        )
-
-    # Settings view
-    elif page.route == "/settings":
-        page.views.append(
-            ft.View(
-                "/settings",
-                [
-                    ft.AppBar(title=ft.Text("Settings")),
-                    ft.Text("Settings", size=32, weight=ft.FontWeight.BOLD),
-                    ft.Text("Coming soon...", size=16),
-                ],
-            )
-        )
-
-    page.update()
-
-
-def view_pop(view, page: ft.Page):
-    """Handle back navigation."""
-    page.views.pop()
-    top_view = page.views[-1]
-    page.route = top_view.route
-    page.update()
-
-
 def main(page: ft.Page):
     """Main entry point for the Flet application."""
     # Ensure database exists BEFORE getting app state (lock manager needs DB)
@@ -151,20 +70,17 @@ def main(page: ft.Page):
 
     page.on_close = on_close
 
-    # Import and build dashboard
-    from ui.views.dashboard import DashboardView
+    # Register all views with router
+    from ui.views_new import register_all_views
+    register_all_views()
 
-    dashboard = DashboardView(page)
-    dashboard_content = dashboard.build()
+    # Build and add app shell
+    from ui.layout import AppShell
 
-    # Add dashboard to page
-    page.add(
-        ft.AppBar(
-            title=ft.Text("Employee Manager"),
-            bgcolor=AppTheme.SURFACE,
-        ),
-        dashboard_content,
-    )
+    app_shell = AppShell(page, current_route="/")
+
+    # Add app shell to page
+    page.add(app_shell)
 
 
 if __name__ == "__main__":

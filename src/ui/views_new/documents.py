@@ -1,0 +1,55 @@
+"""Documents view - Placeholder.
+
+This is a placeholder view that will be fully implemented in Phase 4.
+"""
+
+import flet as ft
+from ui.constants import Spacing
+from ui.components.icons import Icons
+from ui.components.buttons import AppButton
+from ui.navigation.router import get_router
+
+
+class DocumentsView:
+    """Documents view - placeholder implementation."""
+
+    def __init__(self, page: ft.Page):
+        self.page = page
+
+    def build(self) -> ft.Column:
+        """Build documents view."""
+        content = ft.Column(
+            [
+                ft.Container(height=Spacing.LG.value),
+                ft.Icon(
+                    Icons.DOCUMENT,
+                    size=64,
+                    color=ft.Colors.GREY_400,
+                ),
+                ft.Container(height=Spacing.MD.value),
+                ft.Text(
+                    "Documents View",
+                    size=20,
+                    weight=ft.FontWeight.BOLD,
+                ),
+                ft.Text(
+                    "This view will be fully implemented in Phase 4",
+                    size=14,
+                    color=ft.Colors.GREY_500,
+                ),
+                ft.Container(height=Spacing.LG.value),
+                AppButton(
+                    "Back to Dashboard",
+                    variant="secondary",
+                    on_click=lambda e: self._go_back(),
+                ),
+            ],
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        )
+
+        return content
+
+    def _go_back(self):
+        """Navigate back to dashboard."""
+        router = get_router(self.page)
+        router.navigate("/")
