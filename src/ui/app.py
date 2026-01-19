@@ -32,7 +32,26 @@ def run_app():
     """Main entry point for the Flet application."""
     # Ensure database exists before starting
     ensure_database()
-    ft.run(entry_point, view=ft.AppView.WEB_BROWSER, port=8080)
+
+    # Find an available port (try 8080 first, then random)
+    import socket
+    def find_free_port():
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('', 0))
+            s.listen(1)
+            port = s.getsockname()[1]
+        return port
+
+    # Try port 8080 first, fallback to random port
+    port = 8080
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('127.0.0.1', port))
+    except OSError:
+        port = find_free_port()
+        print(f"Port 8080 is busy, using port {port} instead")
+
+    ft.run(entry_point, view=ft.AppView.WEB_BROWSER, port=port)
 
 
 def entry_point(page: ft.Page):
