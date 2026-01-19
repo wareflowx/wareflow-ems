@@ -9,6 +9,7 @@ from ui.constants import Spacing, MAX_CONTENT_WIDTH, NAVBAR_HEIGHT
 from ui.theme import AppTheme
 from ui.navigation.router import get_router
 from ui.theme_colors import get_theme_colors, get_primary_color
+from ui.components.icons import Icons
 
 
 class AppShell(ft.Column):
