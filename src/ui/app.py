@@ -170,7 +170,8 @@ if __name__ == "__main__":
         # Ensure lock is released even if app crashes
         try:
             app_state = get_app_state()
-            if app_state.lock_manager.is_locked:
+            # Check if lock exists (lock manager has _lock attribute)
+            if app_state.lock_manager._lock is not None:
                 print("Cleanup: Releasing application lock...")
                 app_state.release_lock()
                 print("Cleanup: Lock released.")
