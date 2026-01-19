@@ -128,7 +128,13 @@ class DashboardView:
                 # Create click handler for navigation
                 def navigate_to_employee(e, emp_id=alert['employee_id']):
                     # Navigate to employee detail
-                    self.page.route = f"/employee/{emp_id}"
+                    self.page.clean()
+                    from ui.views.employee_detail import EmployeeDetailView
+                    detail_view = EmployeeDetailView(self.page, emp_id)
+                    self.page.add(
+                        ft.AppBar(title=ft.Text("Employee Manager")),
+                        detail_view.build(),
+                    )
                     self.page.update()
 
                 alert_items.append(
