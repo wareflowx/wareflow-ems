@@ -106,10 +106,15 @@ def view_pop(view, page: ft.Page):
 
 def main(page: ft.Page):
     """Main entry point for the Flet application."""
-    # Ensure database exists before starting
+    # Ensure database exists BEFORE getting app state (lock manager needs DB)
     ensure_database()
 
-    # Get application state
+    # Initialize database connection BEFORE acquiring lock
+    from database.connection import database
+    db_path = Path("employee_manager.db")
+    database.init(db_path)
+
+    # Get application state AFTER database is initialized
     app_state = get_app_state()
 
     # Try to acquire lock
