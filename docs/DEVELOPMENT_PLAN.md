@@ -1,112 +1,112 @@
-# PLAN DE DÉVELOPPEMENT - CUSTOMTKINTER UI
+# CUSTOMTKINTER UI DEVELOPMENT PLAN
 
-## 📋 STRUCTURE DU PLAN
+## 📋 PLAN STRUCTURE
 
-Ce plan divise le développement en **7 phases séquentielles**, chacune avec des objectifs clairs et des livrables spécifiques.
+This plan divides development into **7 sequential phases**, each with clear objectives and specific deliverables.
 
-**Estimation totale**: 5-7 jours de développement
+**Total estimated time**: 5-7 development days
 
 ---
 
-## 🎯 PHASE 0 : PRÉPARATION & VALIDATION
+## 🎯 PHASE 0: PREPARATION & VALIDATION
 
-### Objectifs
-- Valider la stack technique
-- Vérifier les dépendances
-- Préparer l'environnement
+### Objectives
+- Validate technical stack
+- Verify dependencies
+- Prepare environment
 
-### Tâches
+### Tasks
 
-#### 0.1. Stack Technique
-**Outils à utiliser :**
-- **UI Framework**: CustomTkinter (moderne, native look)
-- **ORM**: Peewee (déjà en place)
-- **Database**: SQLite (déjà en place)
-- **Excel Import**: openpyxl (déjà dans pyproject.toml)
-- **Build**: PyInstaller (à ajouter)
+#### 0.1. Technical Stack
+**Tools to use:**
+- **UI Framework**: CustomTkinter (modern, native look)
+- **ORM**: Peewee (already in place)
+- **Database**: SQLite (already in place)
+- **Excel Import**: openpyxl (already in pyproject.toml)
+- **Build**: PyInstaller (to be added)
 
-**Pourquoi CustomTkinter ?**
-- Look moderne (dark mode natif)
-- Widgets prêts à l'emploi
+**Why CustomTkinter?**
+- Modern look (native dark mode)
+- Ready-to-use widgets
 - Cross-platform (Windows, Linux, macOS)
-- Léger (~500-700 lignes attendues)
-- Pas de dépendances lourdes (contrairement à Flet)
+- Lightweight (~500-700 lines expected)
+- No heavy dependencies (unlike Flet)
 
-#### 0.2. Dépendances
-**À ajouter à pyproject.toml :**
+#### 0.2. Dependencies
+**To add to pyproject.toml:**
 ```toml
 dependencies = [
-    # ... existantes ...
+    # ... existing ...
     "customtkinter>=5.2.0",  # UI framework
-    "pillow>=10.0.0",        # Requis par CustomTkinter
+    "pillow>=10.0.0",        # Required by CustomTkinter
 ]
 
 [optional-dependencies]
 build = [
-    "pyinstaller>=6.0.0",    # Pour créer l'exe
+    "pyinstaller>=6.0.0",    # For creating exe
 ]
 ```
 
-#### 0.3. Structure des dossiers
-**À créer :**
+#### 0.3. Folder Structure
+**To create:**
 ```
 src/
-└── ui_ctk/                    # Nouveau dossier CustomTkinter
+└── ui_ctk/                    # New CustomTkinter folder
     ├── __init__.py
-    ├── app.py                 # Point d'entrée principal
-    ├── main_window.py         # Fenêtre principale avec navigation
-    ├── views/                 # Écrans de l'application
+    ├── app.py                 # Main entry point
+    ├── main_window.py         # Main window with navigation
+    ├── views/                 # Application screens
     │   ├── __init__.py
-    │   ├── employee_list.py   # Liste des employés
-    │   ├── employee_detail.py # Détail employé
-    │   ├── alerts_view.py     # Vue des alertes
-    │   └── import_view.py     # Import Excel
-    ├── forms/                 # Formulaires de saisie
+    │   ├── employee_list.py   # Employee list
+    │   ├── employee_detail.py # Employee detail
+    │   ├── alerts_view.py     # Alerts view
+    │   └── import_view.py     # Excel import
+    ├── forms/                 # Input forms
     │   ├── __init__.py
-    │   ├── employee_form.py   # Formulaire employé
-    │   ├── caces_form.py      # Formulaire CACES
-    │   └── medical_form.py    # Formulaire visite médicale
-    └── widgets/               # Widgets réutilisables
+    │   ├── employee_form.py   # Employee form
+    │   ├── caces_form.py      # CACES form
+    │   └── medical_form.py    # Medical visit form
+    └── widgets/               # Reusable widgets
         ├── __init__.py
-        ├── status_badge.py    # Badge de statut coloré
-        └── date_picker.py     # Sélecteur de date
+        ├── status_badge.py    # Colored status badge
+        └── date_picker.py     # Date picker
 ```
 
-**Livrable :**
-- ✅ Structure de dossiers validée
-- ✅ Dépendances identifiées
-- ✅ Environnement prêt
+**Deliverables:**
+- ✅ Folder structure validated
+- ✅ Dependencies identified
+- ✅ Environment ready
 
 ---
 
-## 🗄️ PHASE 1 : MODÈLE DE DONNÉES & MIGRATION
+## 🗄️ PHASE 1: DATA MODEL & MIGRATION
 
-### Objectifs
-- Ajouter les champs contact au modèle Employee
-- Créer la migration de base de données
-- Valider les changements
+### Objectives
+- Add contact fields to Employee model
+- Create database migration
+- Validate changes
 
-### Tâches
+### Tasks
 
-#### 1.1. Mettre à jour le modèle Employee
-**Changement dans `src/employee/models.py` :**
+#### 1.1. Update Employee Model
+**Change in `src/employee/models.py`:**
 ```python
 class Employee(Model):
-    # ... existants ...
+    # ... existing ...
 
-    # Contact Information (NOUVEAUX)
-    phone = CharField(null=True)      # Téléphone (optionnel)
-    email = CharField(null=True)      # Email (optionnel)
+    # Contact Information (NEW)
+    phone = CharField(null=True)      # Phone (optional)
+    email = CharField(null=True)      # Email (optional)
 
-    # ... reste existant ...
+    # ... rest existing ...
 ```
 
-**Raison :**
-- Nécessaire pour contacter les employés
-- Demandé explicitement pour V1
+**Rationale:**
+- Necessary to contact employees
+- Explicitly requested for V1
 
-#### 1.2. Créer le script de migration
-**Fichier : `src/database/migrations/add_employee_contacts.py`**
+#### 1.2. Create Migration Script
+**File: `src/database/migrations/add_employee_contacts.py`**
 ```python
 """Migration: Add phone and email to Employee table."""
 
@@ -132,84 +132,84 @@ def downgrade():
     )
 ```
 
-#### 1.3. Script de migration manuel
-**Fichier : `scripts/migrate_add_contacts.py`**
+#### 1.3. Manual Migration Script
+**File: `scripts/migrate_add_contacts.py`**
 ```python
-"""Migration manuelle SQLite pour les champs contact."""
+"""Manual SQLite migration for contact fields."""
 
 import sqlite3
 from pathlib import Path
 
 def migrate(db_path: str):
-    """Ajoute les colonnes phone et email à la table employees."""
+    """Add phone and email columns to employees table."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     try:
-        # Ajouter phone
+        # Add phone
         cursor.execute("ALTER TABLE employees ADD COLUMN phone TEXT")
-        print("✅ Colonne 'phone' ajoutée")
+        print("✅ Column 'phone' added")
     except sqlite3.OperationalError as e:
         if "duplicate column" in str(e).lower():
-            print("⚠️ Colonne 'phone' existe déjà")
+            print("⚠️ Column 'phone' already exists")
         else:
             raise
 
     try:
-        # Ajouter email
+        # Add email
         cursor.execute("ALTER TABLE employees ADD COLUMN email TEXT")
-        print("✅ Colonne 'email' ajoutée")
+        print("✅ Column 'email' added")
     except sqlite3.OperationalError as e:
         if "duplicate column" in str(e).lower():
-            print("⚠️ Colonne 'email' existe déjà")
+            print("⚠️ Column 'email' already exists")
         else:
             raise
 
     conn.commit()
     conn.close()
-    print("✅ Migration terminée")
+    print("✅ Migration complete")
 ```
 
-#### 1.4. Tester la migration
-1. Backup la base de données existante
-2. Exécuter la migration
-3. Vérifier que les colonnes existent
-4. Tester la création d'un employé avec phone/email
+#### 1.4. Test Migration
+1. Backup existing database
+2. Run migration
+3. Verify columns exist
+4. Test creating employee with phone/email
 
-**Livrables :**
-- ✅ Modèle Employee mis à jour avec phone/email
-- ✅ Script de migration fonctionnel
-- ✅ Migration testée sur la base de données
-- ✅ Documentation de la migration
+**Deliverables:**
+- ✅ Employee model updated with phone/email
+- ✅ Working migration script
+- ✅ Migration tested on database
+- ✅ Migration documentation
 
 ---
 
-## 🖼️ PHASE 2 : STRUCTURE UI CUSTOMTKINTER
+## 🖼️ PHASE 2: CUSTOMTKINTER UI STRUCTURE
 
-### Objectifs
-- Créer la structure de base de l'application
-- Implémenter la fenêtre principale avec navigation
-- Mettre en place le système de navigation entre vues
+### Objectives
+- Create basic application structure
+- Implement main window with navigation
+- Set up view switching system
 
-### Tâches
+### Tasks
 
-#### 2.1. Point d'entrée (app.py)
-**Fichier : `src/ui_ctk/app.py`**
+#### 2.1. Entry Point (app.py)
+**File: `src/ui_ctk/app.py`**
 
-**Responsabilités :**
-- Initialiser CustomTkinter
-- Créer la fenêtre principale
-- Initialiser la connexion à la base de données
-- Lancer la boucle principale
+**Responsibilities:**
+- Initialize CustomTkinter
+- Create main window
+- Initialize database connection
+- Start main loop
 
-**Pseudo-code :**
+**Pseudo-code:**
 ```python
 import customtkinter as ctk
 from database.connection import database
 from ui_ctk.main_window import MainWindow
 
 def main():
-    """Point d'entrée de l'application."""
+    """Application entry point."""
     # Setup CustomTkinter
     ctk.set_appearance_mode("System")
     ctk.set_default_color_theme("blue")
@@ -234,31 +234,31 @@ def main():
     database.close()
 ```
 
-#### 2.2. Fenêtre principale avec navigation (main_window.py)
-**Fichier : `src/ui_ctk/main_window.py`**
+#### 2.2. Main Window with Navigation (main_window.py)
+**File: `src/ui_ctk/main_window.py`**
 
-**Layout :**
+**Layout:**
 ```
 ┌────────────────────────────────────────────┐
 │  Wareflow EMS - Gestion des Salariés       │
 ├────────────────────────────────────────────┤
-│  [Employés] [Alertes] [Import]            │  ← Navigation Bar
+│  [Employees] [Alerts] [Import]            │  ← Navigation Bar
 ├────────────────────────────────────────────┤
 │                                            │
 │                                            │
-│            CONTENU DE LA VUE               │  ← View Container
-│            (change dynamiquement)          │
+│            VIEW CONTENT                    │  ← View Container
+│          (changes dynamically)             │
 │                                            │
 │                                            │
 └────────────────────────────────────────────┘
 ```
 
-**Responsabilités :**
-- Créer la barre de navigation
-- Gérer le changement de vues
-- Maintenir l'état global de l'application
+**Responsibilities:**
+- Create navigation bar
+- Manage view switching
+- Maintain global application state
 
-**Pseudo-code :**
+**Pseudo-code:**
 ```python
 import customtkinter as ctk
 from ui_ctk.views.employee_list import EmployeeListView
@@ -266,7 +266,7 @@ from ui_ctk.views.alerts_view import AlertsView
 from ui_ctk.views.import_view import ImportView
 
 class MainWindow(ctk.CTkFrame):
-    """Fenêtre principale avec navigation."""
+    """Main window with navigation."""
 
     def __init__(self, master):
         super().__init__(master)
@@ -286,7 +286,7 @@ class MainWindow(ctk.CTkFrame):
         self.show_employee_list()
 
     def create_nav_buttons(self):
-        """Crée les boutons de navigation."""
+        """Create navigation buttons."""
         btn_employees = ctk.CTkButton(
             self.nav_bar,
             text="👥 Employés",
@@ -309,73 +309,73 @@ class MainWindow(ctk.CTkFrame):
         btn_import.pack(side="left", padx=5)
 
     def show_employee_list(self):
-        """Affiche la vue liste des employés."""
+        """Show employee list view."""
         self.clear_view()
         EmployeeListView(self.view_container).pack(fill="both", expand=True)
 
     def show_alerts(self):
-        """Affiche la vue des alertes."""
+        """Show alerts view."""
         self.clear_view()
         AlertsView(self.view_container).pack(fill="both", expand=True)
 
     def show_import(self):
-        """Affiche la vue d'import."""
+        """Show import view."""
         self.clear_view()
         ImportView(self.view_container).pack(fill="both", expand=True)
 
     def clear_view(self):
-        """Supprime la vue actuelle."""
+        """Remove current view."""
         for widget in self.view_container.winfo_children():
             widget.destroy()
 ```
 
-**Livrables :**
-- ✅ Point d'entrée créé (app.py)
-- ✅ Fenêtre principale avec navigation
-- ✅ Boutons de navigation fonctionnels
-- ✅ Système de changement de vues opérationnel
+**Deliverables:**
+- ✅ Entry point created (app.py)
+- ✅ Main window with navigation
+- ✅ Working navigation buttons
+- ✅ Operational view switching system
 
 ---
 
-## 👥 PHASE 3 : VUE EMPLOYÉS
+## 👥 PHASE 3: EMPLOYEE VIEWS
 
-### Objectifs
-- Créer la vue liste des employés
-- Créer la vue détail employé
-- Créer les formulaires de saisie
+### Objectives
+- Create employee list view
+- Create employee detail view
+- Create input forms
 
-### Tâches
+### Tasks
 
-#### 3.1. Vue Liste des Employés (employee_list.py)
-**Fichier : `src/ui_ctk/views/employee_list.py`**
+#### 3.1. Employee List View (employee_list.py)
+**File: `src/ui_ctk/views/employee_list.py`**
 
-**Layout :**
+**Layout:**
 ```
 ┌────────────────────────────────────────────┐
-│  👥 Liste des Employés                     │
+│  👥 Employee List                          │
 ├────────────────────────────────────────────┤
-│  🔍 [Rechercher........................]    │
-│  📊 [Actifs ▼]                             │
+│  🔍 [Search........................]        │
+│  📊 [Active ▼]                             │
 ├────────────────────────────────────────────┤
-│  │ Nom           │ Statut   │ Actions    │  ← TableHeader
-│  ├───────────────┼──────────┼────────────┤
-│  │ Jean Dupont   │ Actif    │ [Détail]   │  ← Row
-│  │ Marie Martin  │ Actif    │ [Détail]   │  ← Row
-│  │ Pierre Bernard│ Inactif  │ [Détail]   │  ← Row
-│  └───────────────┴──────────┴────────────┘
-│                     ↓                        ↓
-│              [➕ Ajouter]             [🔄 Rafraîchir]
+│  │ Name          │ Status  │ Actions    │  ← TableHeader
+│  ├───────────────┼─────────┼────────────┤
+│  │ Jean Dupont   │ Active  │ [Detail]   │  ← Row
+│  │ Marie Martin  │ Active  │ [Detail]   │  ← Row
+│  │ Pierre Bernard│ Inactive│ [Detail]   │  ← Row
+│  └───────────────┴─────────┴────────────┘
+│                    ↓                        ↓
+│             [➕ Add]              [🔄 Refresh]│
 └────────────────────────────────────────────┘
 ```
 
-**Responsabilités :**
-- Afficher la liste des employés dans un tableau
-- Permettre la recherche par nom
-- Filtrer par statut (actif/inactif)
-- Bouton pour voir le détail d'un employé
-- Bouton pour ajouter un nouvel employé
+**Responsibilities:**
+- Display employees in a table
+- Allow search by name
+- Filter by status (active/inactive)
+- Button to view employee detail
+- Button to add new employee
 
-**Pseudo-code :**
+**Pseudo-code:**
 ```python
 import customtkinter as ctk
 from employee.models import Employee
@@ -383,7 +383,7 @@ from ui_ctk.forms.employee_form import EmployeeFormDialog
 from ui_ctk.views.employee_detail import EmployeeDetailView
 
 class EmployeeListView(ctk.CTkFrame):
-    """Vue liste des employés."""
+    """Employee list view."""
 
     def __init__(self, master):
         super().__init__(master)
@@ -401,12 +401,12 @@ class EmployeeListView(ctk.CTkFrame):
         self.refresh_employee_list()
 
     def create_header(self):
-        """Crée le header."""
+        """Create header."""
         header = ctk.CTkLabel(self, text="👥 Liste des Employés", font=("Arial", 20, "bold"))
         header.pack(pady=10)
 
     def create_search_filter(self):
-        """Crée la barre de recherche et filtre."""
+        """Create search and filter bar."""
         control_frame = ctk.CTkFrame(self)
         control_frame.pack(fill="x", padx=10, pady=10)
 
@@ -439,7 +439,7 @@ class EmployeeListView(ctk.CTkFrame):
         refresh_btn.pack(side="right", padx=5)
 
     def create_table(self):
-        """Crée le tableau des employés."""
+        """Create employee table."""
         # Scrollable frame
         self.table_frame = ctk.CTkScrollableFrame(self)
         self.table_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -451,7 +451,7 @@ class EmployeeListView(ctk.CTkFrame):
         self.table_rows = []
 
     def create_table_header(self):
-        """Crée l'entête du tableau."""
+        """Create table header."""
         header_frame = ctk.CTkFrame(self.table_frame)
         header_frame.pack(fill="x", pady=5)
 
@@ -462,7 +462,7 @@ class EmployeeListView(ctk.CTkFrame):
         ctk.CTkLabel(header_frame, text="Actions", font=("Arial", 12, "bold")).pack(side="right", padx=10)
 
     def refresh_employee_list(self):
-        """Charge la liste des employés."""
+        """Load employee list."""
         # Clear existing rows
         for row in self.table_rows:
             row.destroy()
@@ -493,7 +493,7 @@ class EmployeeListView(ctk.CTkFrame):
             self.table_rows.append(row)
 
     def create_employee_row(self, employee):
-        """Crée une ligne pour un employé."""
+        """Create employee row."""
         row = ctk.CTkFrame(self.table_frame)
 
         name_label = ctk.CTkLabel(row, text=employee.full_name)
@@ -524,277 +524,278 @@ class EmployeeListView(ctk.CTkFrame):
         return row
 
     def show_employee_detail(self, employee):
-        """Affiche le détail d'un employé."""
+        """Show employee detail."""
         # Clear view and show detail
         self.master.clear_view()
         EmployeeDetailView(self.master.view_container, employee).pack(fill="both", expand=True)
 
     def on_search(self, *args):
-        """Gère la recherche."""
+        """Handle search."""
         self.refresh_employee_list()
 
     def on_filter(self, value):
-        """Gère le filtre."""
+        """Handle filter."""
         self.refresh_employee_list()
 
     def add_employee(self):
-        """Ajoute un nouvel employé."""
+        """Add new employee."""
         dialog = EmployeeFormDialog(self)
         if dialog.result:
             self.refresh_employee_list()
 ```
 
-#### 3.2. Formulaire Employé (employee_form.py)
-**Fichier : `src/ui_ctk/forms/employee_form.py`**
+#### 3.2. Employee Form (employee_form.py)
+**File: `src/ui_ctk/forms/employee_form.py`**
 
-**Responsabilités :**
-- Formulaire de création/édition d'employé
-- Validation des champs
-- Sauvegarde en base de données
+**Responsibilities:**
+- Employee create/edit form
+- Field validation
+- Save to database
 
-**Layout du formulaire :**
+**Form Layout:**
 ```
 ┌─────────────────────────────────────────┐
-│  ➕ Nouvel Employé / ✏️ Modifier        │
+│  ➕ New Employee / ✏️ Edit              │
 ├─────────────────────────────────────────┤
-│  Prénom : [________________]  *         │
-│  Nom :    [________________]  *         │
-│  Email :  [________________]            │
-│  Téléphone : [________]                 │
-│  Statut : [Actif ▼]        *            │
-│  Espace de travail : [________]  *      │
-│  Rôle : [________]        *             │
-│  Type de contrat : [CDI ▼]   *         │
-│  Date d'entrée : [DD/MM/YYYY]  *       │
+│  First Name: [________________]  *      │
+│  Last Name:  [________________]  *      │
+│  Email:      [________________]         │
+│  Phone:      [________]                 │
+│  Status:     [Active ▼]      *          │
+│  Workspace:  [________]       *          │
+│  Role:       [________]       *          │
+│  Contract:   [CDI ▼]         *          │
+│  Entry Date: [DD/MM/YYYY]     *          │
 │                                         │
-│     [Annuler]              [Sauvegarder]│
+│     [Cancel]              [Save]        │
 └─────────────────────────────────────────┘
 ```
 
-#### 3.3. Vue Détail Employé (employee_detail.py)
-**Fichier : `src/ui_ctk/views/employee_detail.py`**
+#### 3.3. Employee Detail View (employee_detail.py)
+**File: `src/ui_ctk/views/employee_detail.py`**
 
-**Layout :**
+**Layout:**
 ```
 ┌────────────────────────────────────────────┐
-│  ← Retour    Jean Dupont                  │
+│  ← Back    Jean Dupont                    │
 ├────────────────────────────────────────────┤
-│  Informations                             │
+│  Information                              │
 │  ┌──────────────────────────────────────┐ │
-│  │ Email : jean.dupont@example.com      │ │
-│  │ Téléphone : 06 12 34 56 78           │ │
-│  │ Statut : Actif                        │ │
-│  │ Contrat : CDI                         │ │
-│  │ Espace : Zone A                       │ │
-│  │ Rôle : Cariste                        │ │
-│  │ Date entrée : 15/01/2025              │ │
+│  │ Email: jean.dupont@example.com       │ │
+│  │ Phone: 06 12 34 56 78                │ │
+│  │ Status: Active                       │ │
+│  │ Contract: CDI                        │ │
+│  │ Workspace: Zone A                    │ │
+│  │ Role: Forklift Operator              │ │
+│  │ Entry Date: 15/01/2025               │ │
 │  └──────────────────────────────────────┘ │
 │                                          │
-│  CACES                    [➕ Ajouter]   │
+│  CACES                    [➕ Add]       │
 │  ┌──────────────────────────────────────┐ │
-│  │ R489-1A | Expire : 15/01/2030 ✓     │ │
+│  │ R489-1A | Expires: 15/01/2030 ✓     │ │
 │  └──────────────────────────────────────┘ │
 │                                          │
-│  Visites Médicales         [➕ Ajouter]  │
+│  Medical Visits          [➕ Add]        │
 │  ┌──────────────────────────────────────┐ │
-│  │ Périodique | Expire : 15/01/2027 ✓  │ │
+│  │ Periodic | Expires: 15/01/2027 ✓    │ │
 │  └──────────────────────────────────────┘ │
 │                                          │
-│           [✏️ Modifier] [🗑️ Supprimer]   │
+│           [✏️ Edit] [🗑️ Delete]          │
 └────────────────────────────────────────────┘
 ```
 
-**Livrables :**
-- ✅ Vue liste des employés fonctionnelle
-- ✅ Recherche et filtres opérationnels
-- ✅ Formulaire employé avec validation
-- ✅ Vue détail employé complète
-- ✅ CRUD employé complet
+**Deliverables:**
+- ✅ Working employee list view
+- ✅ Operational search and filters
+- ✅ Employee form with validation
+- ✅ Complete employee detail view
+- ✅ Full employee CRUD
 
 ---
 
-## ⚠️ PHASE 4 : VUE ALERTES
+## ⚠️ PHASE 4: ALERTS VIEW
 
-### Objectifs
-- Créer la vue des alertes simples
-- Implémenter les filtres par type et jours
-- Afficher les alertes colorées par urgence
+### Objectives
+- Create simple alerts view
+- Implement type and day filters
+- Display urgency-colored alerts
 
-### Tâches
+### Tasks
 
-#### 4.1. Vue Alertes (alerts_view.py)
-**Fichier : `src/ui_ctk/views/alerts_view.py`**
+#### 4.1. Alerts View (alerts_view.py)
+**File: `src/ui_ctk/views/alerts_view.py`**
 
-**Layout :**
+**Layout:**
 ```
 ┌────────────────────────────────────────────┐
-│  ⚠️ Alertes                                │
+│  ⚠️ Alerts                                 │
 ├────────────────────────────────────────────┤
-│  Type : [Tous ▼]    Jours : [30 ▼]        │
+│  Type: [All ▼]    Days: [30 ▼]            │
 ├────────────────────────────────────────────┤
 │  🔴 CACES R489-1A - Jean Dupont            │
-│     Expire dans 12 jours (15/02/2025)      │
-│     [Voir Détail]                          │
+│     Expires in 12 days (15/02/2025)        │
+│     [View Detail]                          │
 ├────────────────────────────────────────────┤
-│  🟡 Visite médicale - Marie Martin         │
-│     Expire dans 45 jours (15/03/2025)      │
-│     [Voir Détail]                          │
+│  🟡 Medical Visit - Marie Martin           │
+│     Expires in 45 days (15/03/2025)        │
+│     [View Detail]                          │
 ├────────────────────────────────────────────┤
 │  🟢 CACES R489-3 - Pierre Bernard          │
-│     Expire dans 89 jours (15/04/2025)      │
-│     [Voir Détail]                          │
+│     Expires in 89 days (15/04/2025)        │
+│     [View Detail]                          │
 └────────────────────────────────────────────┘
 ```
 
-**Filtres disponibles :**
-- **Type** : Tous, CACES, Visites médicales, Formations
-- **Jours** : 30 (critique), 60 (avertissement), 90 (information), Toutes
+**Available Filters:**
+- **Type**: All, CACES, Medical Visits, Trainings
+- **Days**: 30 (critical), 60 (warning), 90 (information), All
 
-**Code de couleurs :**
-- 🔴 **Rouge** : Expiré ou moins de 30 jours
-- 🟡 **Jaune** : 30-60 jours
-- 🟢 **Vert** : 60-90 jours
-- ⚪ **Gris** : Plus de 90 jours
+**Color Code:**
+- 🔴 **Red**: Expired or less than 30 days
+- 🟡 **Yellow**: 30-60 days
+- 🟢 **Green**: 60-90 days
+- ⚪ **Gray**: More than 90 days
 
-**Livrables :**
-- ✅ Vue alertes simple et claire
-- ✅ Filtres par type et par jours
-- ✅ Coloration par urgence
-- ✅ Lien vers détail employé
+**Deliverables:**
+- ✅ Simple, clear alerts view
+- ✅ Type and day filters
+- ✅ Urgency-based coloring
+- ✅ Link to employee detail
 
 ---
 
-## 📥 PHASE 5 : IMPORT EXCEL
+## 📥 PHASE 5: EXCEL IMPORT
 
-### Objectifs
-- Créer la vue d'import Excel
-- Implémenter la validation des données
-- Gérer les erreurs d'import
+### Objectives
+- Create Excel import view
+- Implement data validation
+- Handle import errors
 
-### Tâches
+### Tasks
 
-#### 5.1. Vue Import Excel (import_view.py)
-**Fichier : `src/ui_ctk/views/import_view.py`**
+#### 5.1. Excel Import View (import_view.py)
+**File: `src/ui_ctk/views/import_view.py`**
 
-**Layout :**
+**Layout:**
 ```
 ┌────────────────────────────────────────────┐
-│  📥 Import Excel                           │
+│  📥 Excel Import                           │
 ├────────────────────────────────────────────┤
-│  Importez un fichier Excel contenant       │
-│  la liste des employés à importer.         │
+│  Import an Excel file containing           │
+│  the list of employees to import.          │
 │                                          │
-│  [Choisir un fichier Excel...]             │
+│  [Choose Excel File...]                    │
 │                                          │
-│  Format attendu :                          │
+│  Expected format:                          │
 │  ┌──────────────────────────────────────┐ │
-│  │ Prénom | Nom | Email | Téléphone |  │ │
-│  │ Jean   | Dupont | ... | ...        │ │
+│  │ First | Last | Email | Phone |      │ │
+│  │ Name  | Name  |      |       |      │ │
+│  │ Jean  | Dupont | ... | ...        │ │
 │  └──────────────────────────────────────┘ │
 │                                          │
-│  [📥 Télécharger le modèle]               │
+│  [📥 Download Template]                   │
 │                                          │
 │  ┌──────────────────────────────────────┐ │
-│  │ Progression : ████░░░░░░ 50%        │ │
-│  │ 5 employés importés / 10             │ │
+│  │ Progress: ████░░░░░░ 50%            │ │
+│  │ 5 employees imported / 10            │ │
 │  └──────────────────────────────────────┘ │
 │                                          │
-│  [Importer]                               │
+│  [Import]                                 │
 └────────────────────────────────────────────┘
 ```
 
-**Fonctionnalités :**
-- Sélection de fichier Excel
-- Validation du format
-- Affichage de la progression
-- Rapport d'erreurs (ligne par ligne)
-- Annulation possible
+**Features:**
+- Excel file selection
+- Format validation
+- Progress display
+- Error reporting (line by line)
+- Cancellation support
 
-**Livrables :**
-- ✅ Vue d'import Excel fonctionnelle
-- ✅ Validation des données
-- ✅ Gestion des erreurs
-- ✅ Rapport d'import détaillé
-
----
-
-## 🧪 PHASE 6 : TESTS & VALIDATION
-
-### Objectifs
-- Tester toutes les fonctionnalités
-- Corriger les bugs
-- Valider l'UX
-
-### Tâches
-
-#### 6.1. Tests manuels
-
-**Scénarios à tester :**
-
-1. **CRUD Employé :**
-   - ✅ Créer un employé avec tous les champs
-   - ✅ Créer un employé avec seulement les champs obligatoires
-   - ✅ Modifier un employé existant
-   - ✅ Supprimer un employé (avec confirmation)
-   - ✅ Rechercher un employé par nom
-   - ✅ Filtrer par statut (actif/inactif)
-
-2. **CACES & Visites :**
-   - ✅ Ajouter un CACES (vérifier le calcul d'expiration)
-   - ✅ Ajouter une visite médicale (vérifier le calcul)
-   - ✅ Vérifier les statuts (valid, warning, critical, expired)
-
-3. **Alertes :**
-   - ✅ Afficher les alertes CACES
-   - ✅ Afficher les alertes visites médicales
-   - ✅ Filtrer par type
-   - ✅ Filtrer par jours (30, 60, 90)
-   - ✅ Vérifier la coloration
-
-4. **Import Excel :**
-   - ✅ Importer un fichier valide
-   - ✅ Importer un fichier avec des erreurs (vérifier la gestion)
-   - ✅ Importer un fichier avec des formats incorrects
-   - ✅ Annuler un import en cours
-
-5. **Navigation :**
-   - ✅ Changer de vue sans erreur
-   - ✅ Retour à la liste depuis le détail
-   - ✅ Persistance des données entre les vues
-
-#### 6.2. Tests de performance
-
-- ✅ Temps de chargement de la liste (avec 100+ employés)
-- ✅ Rapidité de la recherche
-- ✅ Fluidité de la navigation
-- ✅ Mémoire utilisée
-
-#### 6.3. Tests UX
-
-- ✅ Intuitivité de l'interface
-- ✅ Clarté des messages d'erreur
-- ✅ Accessibilité (taille des boutons, lisibilité)
-- ✅ Cohérence visuelle
-
-**Livrables :**
-- ✅ Tous les scénarios testés
-- ✅ Bugs corrigés
-- ✅ UX validée
+**Deliverables:**
+- ✅ Working Excel import view
+- ✅ Data validation
+- ✅ Error handling
+- ✅ Detailed import report
 
 ---
 
-## 📦 PHASE 7 : BUILD & DÉPLOIEMENT
+## 🧪 PHASE 6: TESTING & VALIDATION
 
-### Objectifs
-- Créer l'exécutable .exe
-- Tester l'exécutable
-- Préparer le déploiement
+### Objectives
+- Test all features
+- Fix bugs
+- Validate UX
 
-### Tâches
+### Tasks
 
-#### 7.1. Configuration PyInstaller
+#### 6.1. Manual Testing
 
-**Fichier : `build.spec`**
+**Test Scenarios:**
+
+1. **Employee CRUD:**
+   - ✅ Create employee with all fields
+   - ✅ Create employee with only required fields
+   - ✅ Edit existing employee
+   - ✅ Delete employee (with confirmation)
+   - ✅ Search employee by name
+   - ✅ Filter by status (active/inactive)
+
+2. **CACES & Visits:**
+   - ✅ Add CACES (verify expiration calculation)
+   - ✅ Add medical visit (verify calculation)
+   - ✅ Check status (valid, warning, critical, expired)
+
+3. **Alerts:**
+   - ✅ Display CACES alerts
+   - ✅ Display medical visit alerts
+   - ✅ Filter by type
+   - ✅ Filter by days (30, 60, 90)
+   - ✅ Verify coloring
+
+4. **Excel Import:**
+   - ✅ Import valid file
+   - ✅ Import file with errors (verify handling)
+   - ✅ Import file with incorrect formats
+   - ✅ Cancel import in progress
+
+5. **Navigation:**
+   - ✅ Change views without errors
+   - ✅ Return to list from detail
+   - ✅ Data persistence between views
+
+#### 6.2. Performance Testing
+
+- ✅ List load time (with 100+ employees)
+- ✅ Search speed
+- ✅ Navigation fluidity
+- ✅ Memory usage
+
+#### 6.3. UX Testing
+
+- ✅ Interface intuitiveness
+- ✅ Error message clarity
+- ✅ Accessibility (button size, readability)
+- ✅ Visual consistency
+
+**Deliverables:**
+- ✅ All scenarios tested
+- ✅ Bugs fixed
+- ✅ UX validated
+
+---
+
+## 📦 PHASE 7: BUILD & DEPLOYMENT
+
+### Objectives
+- Create .exe executable
+- Test executable
+- Prepare deployment
+
+### Tasks
+
+#### 7.1. PyInstaller Configuration
+
+**File: `build.spec`**
 ```python
 # -*- mode: python ; coding: utf-8 -*-
 
@@ -844,19 +845,19 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,  # Pas de console Windows
+    console=False,  # No Windows console
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='assets/icon.ico'  # Optionnel
+    icon='assets/icon.ico'  # Optional
 )
 ```
 
-#### 7.2. Script de build
+#### 7.2. Build Script
 
-**Fichier : `scripts/build.bat`**
+**File: `scripts/build.bat`**
 ```batch
 @echo off
 echo ========================================
@@ -864,73 +865,73 @@ echo Build Wareflow EMS
 echo ========================================
 
 echo.
-echo [1/4] Nettoyage...
+echo [1/4] Cleaning...
 if exist build rmdir /s /q build
 if exist dist rmdir /s /q dist
 
 echo.
-echo [2/4] Installation des dépendances...
+echo [2/4] Installing dependencies...
 pip install -e .
 
 echo.
-echo [3/4] Build PyInstaller...
+echo [3/4] PyInstaller build...
 pyinstaller build.spec --clean
 
 echo.
-echo [4/4] Terminé !
+echo [4/4] Done!
 echo.
-echo L'exécutable est dans : dist\WareflowEMS.exe
+echo Executable is in: dist\WareflowEMS.exe
 pause
 ```
 
-#### 7.3. Structure de déploiement
+#### 7.3. Deployment Structure
 
-**Dossier à déployer :**
+**Folder to deploy:**
 ```
 [Gestion_Salaries_2025/
-├── WareflowEMS.exe              # L'application
-├── data/                        # Données (créé au lancement)
-│   └── employee_manager.db      # Base de données SQLite
-├── documents/                   # Documents uploadés
-│   ├── caces/                   # Certificats CACES
-│   ├── medical/                 # Visites médicales
-│   └── training/                # Formations
+├── WareflowEMS.exe              # Application
+├── data/                        # Data (created on first run)
+│   └── employee_manager.db      # SQLite database
+├── documents/                   # Uploaded documents
+│   ├── caces/                   # CACES certificates
+│   ├── medical/                 # Medical visits
+│   └── training/                # Trainings
 └── README.txt                   # Instructions
 ```
 
-#### 7.4. Tests de l'exécutable
+#### 7.4. Executable Testing
 
-- ✅ Lancement sans erreur
-- ✅ Connexion à la base de données
-- ✅ Toutes les fonctionnalités testées
-- ✅ Performance acceptable
-- ✅ Aucune dépendance manquante
+- ✅ Launch without errors
+- ✅ Database connection
+- ✅ All features tested
+- ✅ Acceptable performance
+- ✅ No missing dependencies
 
-**Livrables :**
-- ✅ Exécutable .exe fonctionnel
-- ✅ Structure de déploiement prête
-- ✅ Instructions d'installation
-- ✅ README utilisateur
+**Deliverables:**
+- ✅ Working .exe executable
+- ✅ Ready deployment structure
+- ✅ Installation instructions
+- ✅ User README
 
 ---
 
-## 📊 RÉSUMÉ DU PLAN
+## 📊 PLAN SUMMARY
 
-### Durée estimée par phase
+### Estimated Duration per Phase
 
-| Phase | Durée | Complexité |
-|-------|-------|------------|
-| **Phase 0** : Préparation | 2h | Faible |
-| **Phase 1** : Modèle & Migration | 2h | Faible |
-| **Phase 2** : Structure UI | 4h | Moyenne |
-| **Phase 3** : Vue Employés | 8h | Moyenne |
-| **Phase 4** : Vue Alertes | 4h | Faible |
-| **Phase 5** : Import Excel | 6h | Moyenne |
-| **Phase 6** : Tests | 4h | Faible |
-| **Phase 7** : Build | 2h | Faible |
-| **TOTAL** | **32h** (~5-7 jours) | - |
+| Phase | Duration | Complexity |
+|-------|----------|------------|
+| **Phase 0** | Preparation | 2h | Low |
+| **Phase 1** | Model & Migration | 2h | Low |
+| **Phase 2** | UI Structure | 4h | Medium |
+| **Phase 3** | Employee Views | 8h | Medium |
+| **Phase 4** | Alerts View | 4h | Low |
+| **Phase 5** | Excel Import | 6h | Medium |
+| **Phase 6** | Testing | 4h | Low |
+| **Phase 7** | Build | 2h | Low |
+| **TOTAL** | **32h** (~5-7 days) | - |
 
-### Dependencies entre phases
+### Phase Dependencies
 
 ```
 Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6 → Phase 7
@@ -939,51 +940,51 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 6 → Phase 7
                                Phase 5 ↗
 ```
 
-### Points de contrôle
+### Control Points
 
-- **Fin Phase 1** : Migration validée ✅
-- **Fin Phase 3** : CRUD employé fonctionnel ✅
-- **Fin Phase 5** : Toutes les vues implémentées ✅
-- **Fin Phase 6** : Application testée et validée ✅
-- **Fin Phase 7** : .exe prêt à déployer ✅
+- **End Phase 1**: Migration validated ✅
+- **End Phase 3**: Working employee CRUD ✅
+- **End Phase 5**: All views implemented ✅
+- **End Phase 6**: Application tested and validated ✅
+- **End Phase 7**: Deployment-ready .exe ✅
 
 ---
 
-## 🎯 CRITERES DE SUCCÈS
+## 🎯 SUCCESS CRITERIA
 
-### Fonctionnels
-- ✅ CRUD employé complet
-- ✅ Ajout de CACES et visites médicales
-- ✅ Vue alertes fonctionnelle
-- ✅ Import Excel opérationnel
-- ✅ Base de données SQLite persistante
+### Functional
+- ✅ Complete employee CRUD
+- ✅ Add CACES and medical visits
+- ✅ Working alerts view
+- ✅ Working Excel import
+- ✅ Persistent SQLite database
 
-### Non-fonctionnels
-- ✅ Interface en français
-- ✅ Design moderne (CustomTkinter)
-- ✅ Performance acceptable (<2s pour charger 100 employés)
-- ✅ Exécutable .exe autonome
-- ✅ Une seule connexion à la fois (lock manager)
+### Non-Functional
+- ✅ French language UI
+- ✅ Modern design (CustomTkinter)
+- ✅ Acceptable performance (<2s to load 100 employees)
+- ✅ Standalone .exe executable
+- ✅ Single connection (lock manager)
 
 ### UX
-- ✅ Interface intuitive
-- ✅ Messages d'erreur clairs
-- ✅ Navigation fluide
-- ✅ Feedback utilisateur (progression, confirmations)
+- ✅ Intuitive interface
+- ✅ Clear error messages
+- ✅ Fluid navigation
+- ✅ User feedback (progress, confirmations)
 
 ---
 
-## 🚀 PROCHAINES ÉTAPES
+## 🚀 NEXT STEPS
 
-**Immédiat :**
-1. Valider ce plan avec l'utilisateur
-2. Ajouter les dépendances CustomTkinter au projet
-3. Commencer Phase 0 (Préparation)
+**Immediate:**
+1. Get user validation for this plan
+2. Add CustomTkinter dependencies to project
+3. Start Phase 0 (Preparation)
 
-**Après validation :**
-- Suivre les phases séquentiellement
-- Marquer chaque étape comme terminée
-- Faire des commits fréquents
-- Tester à chaque phase
+**After validation:**
+- Follow phases sequentially
+- Mark each phase as complete
+- Frequent commits
+- Test after each phase
 
-**Bon développement ! 🎉**
+**Happy development! 🎉**
