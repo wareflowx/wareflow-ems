@@ -60,9 +60,8 @@ def sample_employee(db):
     # Add CACES
     caces = Caces.create(
         employee=employee,
-        type="48.3E",
-        number="CACES123",
-        issue_date=date(2020, 1, 1),
+        kind="R489-1A",
+        completion_date=date(2020, 1, 1),
         expiration_date=date(2025, 1, 1),
         document_path="/docs/caces.pdf"
     )
@@ -148,7 +147,7 @@ class TestJsonExport:
 
         assert 'caces' in data
         assert len(data['caces']) == 1
-        assert data['caces'][0]['type'] == "48.3E"
+        assert data['caces'][0]['kind'] == "R489-1A"
 
         assert 'medical_visits' in data
         assert len(data['medical_visits']) == 1
@@ -179,7 +178,8 @@ class TestJsonExport:
             email=None,
             phone=None,
             entry_date=None,
-            current_status="active"
+            current_status="active",
+            workspace="Paris"
         )
 
         output_path = temp_output_dir / "null_employee.json"
@@ -202,7 +202,8 @@ class TestJsonExport:
             first_name="José",
             last_name="François",
             email="jose@example.com",
-            current_status="active"
+            current_status="active",
+            workspace="Paris"
         )
 
         output_path = temp_output_dir / "utf8_employee.json"
@@ -292,10 +293,10 @@ class TestExcelExport:
 
         # Check headers
         assert ws['A1'].value == "Employé"
-        assert ws['B1'].value == "Type"
+        assert ws['B1'].value == "Kind"
 
         # Check data row
-        assert ws['B2'].value == "48.3E"
+        assert ws['B2'].value == "R489-1A"
 
         wb.close()
 
@@ -426,7 +427,8 @@ class TestCsvExport:
             first_name="René",
             last_name="François",
             email="rene@example.com",
-            current_status="active"
+            current_status="active",
+            workspace="Paris"
         )
 
         output_path = temp_output_dir / "special.csv"
@@ -463,7 +465,8 @@ class TestCsvExport:
             email=None,
             phone=None,
             entry_date=None,
-            current_status="active"
+            current_status="active",
+            workspace="Paris"
         )
 
         output_path = temp_output_dir / "null_fields.csv"
@@ -490,7 +493,8 @@ class TestEdgeCases:
             external_id="NOREL001",
             first_name="No",
             last_name="Relations",
-            current_status="active"
+            current_status="active",
+            workspace="Paris"
         )
 
         output_path = temp_output_dir / "no_relations.json"

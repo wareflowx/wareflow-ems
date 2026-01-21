@@ -23,8 +23,7 @@ from openpyxl.styles import Font, Alignment, PatternFill
 from peewee import prefetch
 
 from employee.models import (
-    Employee, Caces, MedicalVisit, OnlineTraining,
-    EmployeeDocument
+    Employee, Caces, MedicalVisit, OnlineTraining
 )
 
 logger = logging.getLogger(__name__)
@@ -72,9 +71,8 @@ class DataExporter:
                 },
                 'caces': [
                     {
-                        'type': c.type,
-                        'number': c.number,
-                        'issue_date': c.issue_date.isoformat() if c.issue_date else None,
+                        'kind': c.kind,
+                        'completion_date': c.completion_date.isoformat() if c.completion_date else None,
                         'expiration_date': c.expiration_date.isoformat() if c.expiration_date else None,
                         'document_path': c.document_path,
                     }
@@ -216,7 +214,7 @@ class DataExporter:
         """Create CACES detail sheet."""
         ws = workbook.create_sheet("CACES")
 
-        headers = ["Employé", "Type", "Numéro", "Date Émission", "Date Expiration", "Statut"]
+        headers = ["Employé", "Kind", "Date Complétion", "Date Expiration", "Statut"]
         ws.append(headers)
 
         # Style headers
@@ -238,9 +236,8 @@ class DataExporter:
             status = "Expiré" if c.is_expired else "Valide"
             ws.append([
                 c.employee.full_name,
-                c.type,
-                c.number or "",
-                c.issue_date.isoformat() if c.issue_date else "",
+                c.kind,
+                c.completion_date.isoformat() if c.completion_date else "",
                 c.expiration_date.isoformat() if c.expiration_date else "",
                 status,
             ])
