@@ -6,7 +6,7 @@ from typing import Optional, List, Dict
 try:
     from openpyxl import Workbook
     from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-    from openpyxl.worksheet.datavalidation import DataValidationList
+    from openpyxl.worksheet.datavalidation import DataValidation
     from openpyxl.utils import get_column_letter
 except ImportError:
     raise ImportError(
@@ -173,35 +173,43 @@ class ExcelTemplateGenerator:
 
             # Status dropdown
             if column_name == "Status":
-                dv = DataValidationList(
-                    allowBlank=False,
-                    formula=self.STATUS_OPTIONS
+                dv = DataValidation(
+                    type="list",
+                    formula1=f'"{",".join(self.STATUS_OPTIONS)}"',
+                    allow_blank=False
                 )
-                sheet.add_data_validation(dv, f"{row_num+1}:{row_num+1000}")
+                sheet.add_data_validation(dv)
+                dv.add(f"{col_letter}{row_num+1}:{col_letter}{row_num+1000}")
 
             # Workspace dropdown
             elif column_name == "Workspace":
-                dv = DataValidationList(
-                    allowBlank=False,
-                    formula=WORKSPACE_ZONES
+                dv = DataValidation(
+                    type="list",
+                    formula1=f'"{",".join(WORKSPACE_ZONES)}"',
+                    allow_blank=False
                 )
-                sheet.add_data_validation(dv, f"{row_num+1}:{row_num+1000}")
+                sheet.add_data_validation(dv)
+                dv.add(f"{col_letter}{row_num+1}:{col_letter}{row_num+1000}")
 
             # Role dropdown
             elif column_name == "Role":
-                dv = DataValidationList(
-                    allowBlank=False,
-                    formula=ROLE_CHOICES
+                dv = DataValidation(
+                    type="list",
+                    formula1=f'"{",".join(ROLE_CHOICES)}"',
+                    allow_blank=False
                 )
-                sheet.add_data_validation(dv, f"{row_num+1}:{row_num+1000}")
+                sheet.add_data_validation(dv)
+                dv.add(f"{col_letter}{row_num+1}:{col_letter}{row_num+1000}")
 
             # Contract dropdown
             elif column_name == "Contract":
-                dv = DataValidationList(
-                    allowBlank=False,
-                    formula=CONTRACT_TYPE_CHOICES
+                dv = DataValidation(
+                    type="list",
+                    formula1=f'"{",".join(CONTRACT_TYPE_CHOICES)}"',
+                    allow_blank=False
                 )
-                sheet.add_data_validation(dv, f"{row_num+1}:{row_num+1000}")
+                sheet.add_data_validation(dv)
+                dv.add(f"{col_letter}{row_num+1}:{col_letter}{row_num+1000}")
 
             # Entry date format
             elif column_name == "Entry Date":

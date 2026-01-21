@@ -204,6 +204,16 @@ class ExcelImporter:
         value = str(cell.value).strip()
         return value if value else None
 
+    def close(self):
+        """
+        Close the workbook and release resources.
+
+        Should be called when done with the importer to prevent file locks.
+        """
+        if self.workbook:
+            self.workbook.close()
+            self.workbook = None
+
     def parse_file(self) -> List[Dict[str, Any]]:
         """
         Parse Excel file and return list of row dictionaries.
