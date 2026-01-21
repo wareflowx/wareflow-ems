@@ -1,18 +1,15 @@
 """Alerts view showing expiring certifications and visits."""
 
-import customtkinter as ctk
 from typing import List
 
+import customtkinter as ctk
+
 from employee.alerts import Alert, AlertQuery, AlertType, UrgencyLevel
-from ui_ctk.views.base_view import BaseView
 from ui_ctk.constants import (
-    COLOR_CRITICAL,
-    COLOR_WARNING,
-    COLOR_SUCCESS,
-    COLOR_INACTIVE,
-    DATE_FORMAT,
     BTN_REFRESH,
+    DATE_FORMAT,
 )
+from ui_ctk.views.base_view import BaseView
 
 
 class AlertsView(BaseView):

@@ -1,8 +1,9 @@
 """Lock mechanism data models."""
 
 import uuid
-from peewee import *
 from datetime import datetime, timedelta
+
+from peewee import *
 
 from database.connection import database
 

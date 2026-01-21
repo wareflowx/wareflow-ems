@@ -1,10 +1,9 @@
 """Lock acquisition, heartbeat, and release management."""
 
+import os
+import socket
 import threading
 import time
-import socket
-import os
-from datetime import datetime, timedelta
 
 from lock.models import AppLock
 

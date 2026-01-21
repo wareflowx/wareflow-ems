@@ -1,11 +1,12 @@
 """Application lock management commands."""
 
-import typer
-import socket
 import os
+import socket
 
-from lock.models import AppLock
+import typer
+
 from lock.manager import LockManager
+from lock.models import AppLock
 
 app = typer.Typer(help="Gestion du verrou applicatif")
 

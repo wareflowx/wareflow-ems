@@ -1,15 +1,15 @@
 """Employee management commands."""
 
-import typer
 from datetime import date
 from pathlib import Path
 from typing import Optional
 
-from employee.models import Employee
-from employee import queries, calculations
-from database.connection import database as db
+import typer
 
-from cli.utils import format_employee_table, format_employee_detail, get_compliance_emoji
+from cli.utils import format_employee_detail, format_employee_table, get_compliance_emoji
+from database.connection import database as db
+from employee import calculations, queries
+from employee.models import Employee
 
 app = typer.Typer(help="Gestion des employés")
 

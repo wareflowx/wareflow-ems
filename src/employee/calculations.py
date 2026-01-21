@@ -1,9 +1,10 @@
 """Business logic calculations for Employee entity."""
 
 from datetime import date
+
 from dateutil.relativedelta import relativedelta
 
-from employee.models import Employee, Caces, MedicalVisit, OnlineTraining
+from employee.models import Employee
 
 
 def calculate_seniority(employee: Employee) -> int:

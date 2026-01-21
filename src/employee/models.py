@@ -1,16 +1,16 @@
 """Employee data models using Peewee ORM."""
 
 import uuid
-from peewee import *
 from datetime import date, datetime, timedelta
+
 from dateutil.relativedelta import relativedelta
+from peewee import *
 
 from database.connection import database
 from employee.constants import (
-    EmployeeStatus,
-    ContractType,
     CACES_VALIDITY_YEARS,
     VISIT_VALIDITY_YEARS,
+    EmployeeStatus,
 )
 
 
@@ -37,6 +37,10 @@ class Employee(Model):
 
     # Optional
     avatar_path = CharField(null=True)
+
+    # Contact Information
+    phone = CharField(null=True)
+    email = CharField(null=True)
 
     # Metadata
     created_at = DateTimeField(default=datetime.now)
@@ -131,10 +135,12 @@ class Employee(Model):
     def before_save(self):
         """Validation logic using Peewee hooks."""
         from .validators import (
-            ValidationError as ModelValidationError,
-            validate_external_id,
-            validate_entry_date,
             UniqueValidator,
+            validate_entry_date,
+            validate_external_id,
+        )
+        from .validators import (
+            ValidationError as ModelValidationError,
         )
 
         # Validate external_id format if provided
@@ -284,7 +290,8 @@ class Caces(Model):
 
     def before_save(self):
         """Validate CACES kind and calculate expiration_date before saving."""
-        from .validators import ValidationError as ModelValidationError, validate_caces_kind
+        from .validators import ValidationError as ModelValidationError
+        from .validators import validate_caces_kind
 
         # Validate CACES kind
         if self.kind:
@@ -406,7 +413,8 @@ class MedicalVisit(Model):
 
     def before_save(self):
         """Validate visit consistency and calculate expiration_date before saving."""
-        from .validators import ValidationError as ModelValidationError, validate_medical_visit_consistency
+        from .validators import ValidationError as ModelValidationError
+        from .validators import validate_medical_visit_consistency
 
         # Validate visit type and result consistency
         if self.visit_type and self.result:

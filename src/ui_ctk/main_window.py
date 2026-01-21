@@ -1,16 +1,16 @@
 """Main application window with navigation bar."""
 
-import customtkinter as ctk
 from typing import Optional
-from ui_ctk.views.base_view import BaseView
+
+import customtkinter as ctk
+
 from ui_ctk.constants import (
     APP_TITLE,
-    NAV_EMPLOYEES,
     NAV_ALERTS,
+    NAV_EMPLOYEES,
     NAV_IMPORT,
-    DEFAULT_WIDTH,
-    DEFAULT_HEIGHT,
 )
+from ui_ctk.views.base_view import BaseView
 
 
 class MainWindow(ctk.CTkFrame):

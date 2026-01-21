@@ -1,10 +1,10 @@
 """Test configuration and shared fixtures."""
 
-import pytest
 import tempfile
-from datetime import date, datetime, timedelta
+from datetime import date
 from pathlib import Path
 
+import pytest
 from peewee import SqliteDatabase
 
 
@@ -26,7 +26,7 @@ def db(test_database_file):
     """Create a fresh database for each test."""
     # Import database connection
     from database.connection import database
-    from employee.models import Employee, Caces, MedicalVisit, OnlineTraining
+    from employee.models import Caces, Employee, MedicalVisit, OnlineTraining
     from lock.models import AppLock
 
     # Initialize database with temporary file

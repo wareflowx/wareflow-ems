@@ -5,7 +5,8 @@ All subcommands are organized into separate modules.
 """
 
 import typer
-from cli import employee, caces, medical, training, report, lock
+
+from cli import caces, employee, lock, medical, report, training
 
 # Main application
 app = typer.Typer(

@@ -1,6 +1,7 @@
 """CLI utility functions for formatting and display."""
 
 from typing import Any
+
 from tabulate import tabulate
 
 

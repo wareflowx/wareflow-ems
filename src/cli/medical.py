@@ -1,14 +1,14 @@
 """Medical visit management commands."""
 
-import typer
 from datetime import date
 from pathlib import Path
 from typing import Optional
 
-from employee.models import Employee, MedicalVisit
-from database.connection import database as db
+import typer
 
 from cli.utils import format_medical_table
+from database.connection import database as db
+from employee.models import Employee, MedicalVisit
 
 app = typer.Typer(help="Gestion des visites médicales")
 

@@ -1,14 +1,14 @@
 """CACES certification management commands."""
 
-import typer
 from datetime import date
 from pathlib import Path
 from typing import Optional
 
-from employee.models import Employee, Caces
-from database.connection import database as db
+import typer
 
 from cli.utils import format_caces_table
+from database.connection import database as db
+from employee.models import Caces, Employee
 
 app = typer.Typer(help="Gestion des certifications CACES")
 

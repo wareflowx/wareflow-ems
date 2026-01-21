@@ -1,10 +1,9 @@
 """Employee controller - business logic for employee views."""
 
-from typing import Dict, Any, Optional
-from datetime import date
+from typing import Any, Dict, Optional
 
-from employee.models import Employee, Caces, MedicalVisit, OnlineTraining
-from employee import queries, calculations
+from employee import calculations
+from employee.models import Caces, Employee, MedicalVisit, OnlineTraining
 
 
 class EmployeeController:

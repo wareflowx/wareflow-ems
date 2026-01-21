@@ -1,33 +1,30 @@
 """Medical visit form dialog for creating and editing medical visits."""
 
-import customtkinter as ctk
 from datetime import date, datetime
-from pathlib import Path
 from typing import Optional
 
+import customtkinter as ctk
+
 from employee.models import MedicalVisit
-from ui_ctk.forms.base_form import BaseFormDialog
 from ui_ctk.constants import (
-    VISIT_TYPE_CHOICES,
-    VISIT_RESULT_CHOICES,
-    VISIT_TYPES,
-    VISIT_RESULTS,
+    BTN_CANCEL,
+    BTN_SAVE,
     DATE_FORMAT,
     DATE_PLACEHOLDER,
-    BTN_SAVE,
-    BTN_CANCEL,
-    FORM_MEDICAL_TYPE,
-    FORM_MEDICAL_DATE,
-    FORM_MEDICAL_RESULT,
-    FORM_MEDICAL_EXPIRATION_DATE,
-    FORM_MEDICAL_DOCUMENT,
-    VALIDATION_DATE_REQUIRED,
-    VALIDATION_DATE_INVALID,
-    VALIDATION_REQUIRED_FIELD,
-    SUCCESS_VISIT_CREATED,
-    SUCCESS_VISIT_UPDATED,
     ERROR_SAVE_VISIT,
+    FORM_MEDICAL_DATE,
+    FORM_MEDICAL_DOCUMENT,
+    FORM_MEDICAL_EXPIRATION_DATE,
+    FORM_MEDICAL_RESULT,
+    FORM_MEDICAL_TYPE,
+    VALIDATION_DATE_INVALID,
+    VALIDATION_DATE_REQUIRED,
+    VISIT_RESULT_CHOICES,
+    VISIT_RESULTS,
+    VISIT_TYPE_CHOICES,
+    VISIT_TYPES,
 )
+from ui_ctk.forms.base_form import BaseFormDialog
 
 
 class MedicalVisitFormDialog(BaseFormDialog):

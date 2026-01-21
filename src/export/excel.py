@@ -1,12 +1,12 @@
 """Excel generation with formatting."""
 
+from datetime import datetime
 from pathlib import Path
-from datetime import datetime, date
 from typing import Any
 
 try:
     from openpyxl import Workbook
-    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
 except ImportError:
     raise ImportError(
@@ -14,10 +14,9 @@ except ImportError:
         "Install it with: pip install openpyxl"
     )
 
-from export import templates
-from employee.models import Employee, Caces, MedicalVisit, OnlineTraining
 from employee import calculations
-
+from employee.models import Employee
+from export import templates
 
 # ========== STYLE CONVERSION ==========
 

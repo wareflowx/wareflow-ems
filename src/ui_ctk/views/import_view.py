@@ -1,27 +1,24 @@
 """Excel import view for bulk employee import."""
 
-import customtkinter as ctk
 import threading
 from pathlib import Path
 from typing import Optional
-from datetime import datetime
 
-from ui_ctk.views.base_view import BaseView
+import customtkinter as ctk
+
 from ui_ctk.constants import (
-    IMPORT_TITLE,
-    IMPORT_DESCRIPTION,
-    IMPORT_BUTTON_CHOOSE,
-    IMPORT_BUTTON_TEMPLATE,
-    IMPORT_BUTTON_IMPORT,
-    IMPORT_PROGRESS,
-    IMPORT_COMPLETE,
-    IMPORT_ERROR_NO_FILE,
-    IMPORT_ERROR_INVALID_FORMAT,
-    DATE_FORMAT,
-    COLOR_SUCCESS,
     COLOR_CRITICAL,
+    COLOR_SUCCESS,
     COLOR_WARNING,
+    IMPORT_BUTTON_CHOOSE,
+    IMPORT_BUTTON_IMPORT,
+    IMPORT_BUTTON_TEMPLATE,
+    IMPORT_COMPLETE,
+    IMPORT_DESCRIPTION,
+    IMPORT_PROGRESS,
+    IMPORT_TITLE,
 )
+from ui_ctk.views.base_view import BaseView
 
 
 class ImportView(BaseView):

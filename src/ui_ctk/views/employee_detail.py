@@ -1,41 +1,42 @@
 """Employee detail view with certifications and visits."""
 
-import customtkinter as ctk
 from datetime import date
 
-from employee.models import Employee, Caces, MedicalVisit
-from ui_ctk.views.base_view import BaseView
+import customtkinter as ctk
+
+from employee.models import Caces, Employee, MedicalVisit
 from ui_ctk.constants import (
-    STATUS_ACTIVE,
-    STATUS_INACTIVE,
-    DATE_FORMAT,
-    COLOR_SUCCESS,
-    COLOR_WARNING,
+    BTN_ADD,
+    BTN_BACK,
+    BTN_DELETE,
+    BTN_EDIT,
     COLOR_CRITICAL,
     COLOR_INACTIVE,
-    BTN_BACK,
-    BTN_EDIT,
-    BTN_DELETE,
-    BTN_ADD,
-    SECTION_INFO,
-    SECTION_CACES,
-    SECTION_MEDICAL,
-    SECTION_TRAININGS,
+    COLOR_SUCCESS,
+    COLOR_WARNING,
+    CONFIRM_DELETE_CACES,
+    CONFIRM_DELETE_EMPLOYEE,
+    CONFIRM_DELETE_VISIT,
+    CONFIRM_DELETE_WARNING,
+    DATE_FORMAT,
     EMPTY_NO_CACES,
     EMPTY_NO_VISITS,
-    EXPIRATION_STATUS_VALID,
+    ERROR_DELETE_CACES,
+    ERROR_DELETE_EMPLOYEE,
+    ERROR_DELETE_VISIT,
+    EXPIRATION_STATUS_EXPIRED,
     EXPIRATION_STATUS_SOON,
     EXPIRATION_STATUS_URGENT,
-    EXPIRATION_STATUS_EXPIRED,
-    CONFIRM_DELETE_EMPLOYEE,
-    CONFIRM_DELETE_WARNING,
-    CONFIRM_DELETE_CACES,
-    CONFIRM_DELETE_VISIT,
-    ERROR_DELETE_EMPLOYEE,
-    ERROR_DELETE_CACES,
-    ERROR_DELETE_VISIT,
+    EXPIRATION_STATUS_VALID,
+    SECTION_CACES,
+    SECTION_INFO,
+    SECTION_MEDICAL,
+    SECTION_TRAININGS,
+    STATUS_ACTIVE,
+    STATUS_INACTIVE,
     VISIT_TYPES,
 )
+from ui_ctk.views.base_view import BaseView
 
 
 class EmployeeDetailView(BaseView):

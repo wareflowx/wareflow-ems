@@ -1,11 +1,11 @@
 """Alert queries and calculations."""
 
-from datetime import date, timedelta
-from typing import List, Dict, Optional
 from dataclasses import dataclass
+from datetime import date, timedelta
 from enum import Enum
+from typing import Dict, List, Optional
 
-from employee.models import Employee, Caces, MedicalVisit
+from employee.models import Caces, Employee, MedicalVisit
 
 
 class AlertType(Enum):

@@ -2,7 +2,6 @@
 
 from typing import Any
 
-
 # ========== COLUMN DEFINITIONS ==========
 
 # Column definitions for employee export

@@ -1,7 +1,8 @@
 """Database connection setup with SQLite and WAL mode."""
 
-from peewee import SqliteDatabase
 from pathlib import Path
+
+from peewee import SqliteDatabase
 
 # IMPORTANT: Enable foreign_keys in SQLite to ensure CASCADE delete works
 # SQLite by default has ON DELETE disabled, which can cause data integrity issues
@@ -23,7 +24,7 @@ def init_database(db_path: Path) -> None:
     database.execute_sql('PRAGMA busy_timeout=5000')
 
     # Import all models here to avoid circular imports
-    from employee.models import Employee, Caces, MedicalVisit, OnlineTraining
+    from employee.models import Caces, Employee, MedicalVisit, OnlineTraining
     from lock.models import AppLock
 
     # Create all tables

@@ -1,14 +1,14 @@
 """Online training management commands."""
 
-import typer
 from datetime import date
 from pathlib import Path
 from typing import Optional
 
-from employee.models import Employee, OnlineTraining
-from database.connection import database as db
+import typer
 
 from cli.utils import format_training_table
+from database.connection import database as db
+from employee.models import Employee, OnlineTraining
 
 app = typer.Typer(help="Gestion des formations en ligne")
 

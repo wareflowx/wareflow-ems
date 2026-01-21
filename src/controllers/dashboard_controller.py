@@ -1,8 +1,8 @@
 """Dashboard controller - business logic for dashboard view."""
 
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
-from employee import queries, calculations
+from employee import calculations, queries
 from employee.models import Employee
 
 
@@ -132,7 +132,7 @@ class DashboardController:
                     'employee_id': emp.id,
                     'employee_name': emp.full_name,
                     'type': 'medical',
-                    'description': f"Medical visit",
+                    'description': "Medical visit",
                     'days_until': visit.days_until_expiration,
                     'priority': self._get_priority_level(visit.days_until_expiration),
                 })

@@ -1,7 +1,5 @@
 """Global application state management."""
 
-import socket
-import os
 import sys
 from pathlib import Path
 from typing import Optional

@@ -1,35 +1,36 @@
 """Employee form dialog for creating and editing employees."""
 
-import customtkinter as ctk
+import re
 from datetime import date, datetime
 from typing import Optional
-import re
 
-from employee.models import Employee
+import customtkinter as ctk
+
 from employee.constants import EmployeeStatus
-from ui_ctk.forms.base_form import BaseFormDialog
+from employee.models import Employee
 from ui_ctk.constants import (
-    STATUS_ACTIVE,
-    STATUS_INACTIVE,
+    BTN_CANCEL,
+    BTN_SAVE,
     CONTRACT_TYPE_CHOICES,
-    ROLE_CHOICES,
-    WORKSPACE_ZONES,
     DATE_FORMAT,
     DATE_PLACEHOLDER,
-    BTN_SAVE,
-    BTN_CANCEL,
+    ERROR_SAVE_EMPLOYEE,
+    ROLE_CHOICES,
+    STATUS_ACTIVE,
+    STATUS_INACTIVE,
+    VALIDATION_DATE_FUTURE,
+    VALIDATION_DATE_INVALID,
+    VALIDATION_DATE_REQUIRED,
+    VALIDATION_DATE_TOO_OLD,
+    VALIDATION_EMAIL_INVALID,
     VALIDATION_FIRST_NAME_REQUIRED,
     VALIDATION_LAST_NAME_REQUIRED,
-    VALIDATION_WORKSPACE_REQUIRED,
-    VALIDATION_ROLE_REQUIRED,
-    VALIDATION_EMAIL_INVALID,
     VALIDATION_PHONE_INVALID,
-    VALIDATION_DATE_REQUIRED,
-    VALIDATION_DATE_INVALID,
-    VALIDATION_DATE_FUTURE,
-    VALIDATION_DATE_TOO_OLD,
-    ERROR_SAVE_EMPLOYEE,
+    VALIDATION_ROLE_REQUIRED,
+    VALIDATION_WORKSPACE_REQUIRED,
+    WORKSPACE_ZONES,
 )
+from ui_ctk.forms.base_form import BaseFormDialog
 
 
 class EmployeeFormDialog(BaseFormDialog):

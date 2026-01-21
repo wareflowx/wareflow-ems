@@ -1,12 +1,12 @@
 """Logger setup and configuration."""
 
 import logging
-import sys
-from pathlib import Path
-from logging.handlers import RotatingFileHandler
-from datetime import datetime
-import socket
 import os
+import socket
+import sys
+from datetime import datetime
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 
 def setup_logger(
@@ -199,7 +199,7 @@ def log_database_error(logger: logging.Logger, error: Exception, context: str = 
         ... except Exception as e:
         ...     log_database_error(logger, e, "fetching employees")
     """
-    msg = f"Database error"
+    msg = "Database error"
     if context:
         msg += f" ({context})"
     msg += f": {error}"

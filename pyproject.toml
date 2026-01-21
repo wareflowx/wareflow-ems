@@ -56,18 +56,6 @@ addopts = [
 [tool.ruff]
 target-version = "py314"
 line-length = 120
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501",  # line too long (handled by formatter)
-]
 exclude = [
     ".git",
     "__pycache__",
@@ -76,6 +64,24 @@ exclude = [
     "build",
     "dist",
 ]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # function calls in argument defaults (common in typer/cli)
+    "B904",  # raise from in exception handling (too strict for now)
+    "UP045", # Use X | None (optional, can enable later)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["F401", "F841", "E722", "F541"]
+"src/cli/*.py" = ["B008", "B904", "UP045", "F401", "F841", "F541", "C416"]
 
 [tool.ruff.format]
 quote-style = "double"

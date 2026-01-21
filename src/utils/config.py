@@ -1,10 +1,9 @@
 """Configuration JSON loader."""
 
-import json
 import copy
+import json
 from pathlib import Path
 from typing import Any
-
 
 # Default configuration values
 DEFAULT_CONFIG = {

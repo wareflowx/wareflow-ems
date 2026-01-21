@@ -1,9 +1,10 @@
 """Complex database queries for Employee entity."""
 
 from datetime import date, timedelta
-from peewee import prefetch, fn
 
-from employee.models import Employee, Caces, MedicalVisit, OnlineTraining
+from peewee import prefetch
+
+from employee.models import Caces, Employee, MedicalVisit, OnlineTraining
 
 
 def get_employees_with_expiring_items(days=30):

@@ -1,10 +1,9 @@
 """Excel import logic for bulk employee import."""
 
-import threading
-from pathlib import Path
-from datetime import date, datetime
-from typing import List, Dict, Any, Optional, Callable, Tuple
 from dataclasses import dataclass, field
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 try:
     from openpyxl import load_workbook
@@ -18,12 +17,9 @@ except ImportError:
 from database.connection import database
 from employee.models import Employee
 from ui_ctk.constants import (
-    WORKSPACE_ZONES,
-    ROLE_CHOICES,
     CONTRACT_TYPE_CHOICES,
-    STATUS_ACTIVE,
-    STATUS_INACTIVE,
-    DATE_FORMAT,
+    ROLE_CHOICES,
+    WORKSPACE_ZONES,
 )
 
 

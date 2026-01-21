@@ -1,13 +1,13 @@
 """Excel template generator for employee import."""
 
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Dict, List
 
 try:
     from openpyxl import Workbook
-    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-    from openpyxl.worksheet.datavalidation import DataValidation
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
+    from openpyxl.worksheet.datavalidation import DataValidation
 except ImportError:
     raise ImportError(
         "openpyxl is required for Excel template generation. "
@@ -15,13 +15,12 @@ except ImportError:
     )
 
 from ui_ctk.constants import (
-    STATUS_ACTIVE,
-    STATUS_INACTIVE,
     CONTRACT_TYPE_CHOICES,
     ROLE_CARISTE,
     ROLE_CHOICES,
+    STATUS_ACTIVE,
+    STATUS_INACTIVE,
     WORKSPACE_ZONES,
-    DATE_FORMAT,
 )
 
 

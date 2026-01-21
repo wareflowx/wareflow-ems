@@ -1,7 +1,6 @@
 """Alerts controller - business logic for alerts view."""
 
-from typing import Dict, List, Any
-from datetime import date, timedelta
+from typing import Any, Dict, List
 
 from employee import queries
 

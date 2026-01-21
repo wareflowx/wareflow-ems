@@ -1,15 +1,15 @@
 """Report and export commands."""
 
-import typer
 from pathlib import Path
 from typing import Optional
 
-from employee.models import Employee
-from employee import queries, calculations
-from export import excel
-from database.connection import database as db
+import typer
 
-from cli.utils import format_dashboard, format_alerts
+from cli.utils import format_alerts, format_dashboard
+from database.connection import database as db
+from employee import calculations, queries
+from employee.models import Employee
+from export import excel
 
 app = typer.Typer(help="Rapports et exports")
 

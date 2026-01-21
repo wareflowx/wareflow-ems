@@ -1,8 +1,7 @@
 """Base class for all views."""
 
+
 import customtkinter as ctk
-from typing import Callable, Optional
-from ui_ctk.constants import APP_TITLE
 
 
 class BaseView(ctk.CTkFrame):

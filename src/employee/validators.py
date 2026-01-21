@@ -10,17 +10,16 @@ Validators can be used at multiple layers:
 
 import re
 from datetime import date
-from typing import Any, Optional
 from pathlib import Path
+from typing import Any, Optional
 
 from peewee import Model
 
 from .constants import (
     CACES_TYPES,
-    VisitType,
     VisitResult,
+    VisitType,
 )
-
 
 # =============================================================================
 # EXCEPTIONS

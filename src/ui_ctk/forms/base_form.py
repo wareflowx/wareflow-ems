@@ -1,7 +1,9 @@
 """Base class for all forms."""
 
+from typing import Optional, Tuple
+
 import customtkinter as ctk
-from typing import Dict, Any, Optional, Tuple
+
 from ui_ctk.constants import APP_TITLE
 
 

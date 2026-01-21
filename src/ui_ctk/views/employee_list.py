@@ -1,28 +1,28 @@
 """Employee list view with search and filtering."""
 
+from typing import List
+
 import customtkinter as ctk
-from typing import List, Optional
 
 from employee.models import Employee
-from ui_ctk.views.base_view import BaseView
 from ui_ctk.constants import (
-    STATUS_ACTIVE,
-    STATUS_INACTIVE,
-    DATE_FORMAT,
-    COLOR_SUCCESS,
-    COLOR_INACTIVE,
-    FILTER_ALL,
     BTN_ADD,
     BTN_REFRESH,
+    BTN_VIEW,
+    COLOR_INACTIVE,
+    COLOR_SUCCESS,
+    FILTER_ALL,
     PLACEHOLDER_SEARCH,
-    TABLE_NAME,
+    STATUS_ACTIVE,
+    STATUS_INACTIVE,
+    TABLE_ACTIONS,
     TABLE_EMAIL,
+    TABLE_NAME,
     TABLE_PHONE,
     TABLE_ROLE,
     TABLE_STATUS,
-    TABLE_ACTIONS,
-    BTN_VIEW,
 )
+from ui_ctk.views.base_view import BaseView
 
 
 class EmployeeListView(BaseView):

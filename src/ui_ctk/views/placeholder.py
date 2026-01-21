@@ -1,6 +1,7 @@
 """Placeholder view for unimplemented screens."""
 
 import customtkinter as ctk
+
 from ui_ctk.views.base_view import BaseView
 
 

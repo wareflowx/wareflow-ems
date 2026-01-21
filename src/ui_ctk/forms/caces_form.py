@@ -1,29 +1,25 @@
 """CACES certification form dialog for creating and editing certifications."""
 
-import customtkinter as ctk
 from datetime import date, datetime
-from pathlib import Path
 from typing import Optional
-import re
+
+import customtkinter as ctk
 
 from employee.models import Caces
-from ui_ctk.forms.base_form import BaseFormDialog
 from ui_ctk.constants import (
+    BTN_CANCEL,
+    BTN_SAVE,
     CACES_TYPES,
     DATE_FORMAT,
     DATE_PLACEHOLDER,
-    BTN_SAVE,
-    BTN_CANCEL,
-    FORM_CACES_TYPE,
+    ERROR_SAVE_CACES,
     FORM_CACES_COMPLETION_DATE,
     FORM_CACES_DOCUMENT,
-    VALIDATION_DATE_REQUIRED,
+    FORM_CACES_TYPE,
     VALIDATION_DATE_INVALID,
-    VALIDATION_REQUIRED_FIELD,
-    SUCCESS_CACES_CREATED,
-    SUCCESS_CACES_UPDATED,
-    ERROR_SAVE_CACES,
+    VALIDATION_DATE_REQUIRED,
 )
+from ui_ctk.forms.base_form import BaseFormDialog
 
 
 class CacesFormDialog(BaseFormDialog):
