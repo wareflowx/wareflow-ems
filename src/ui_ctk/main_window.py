@@ -1,16 +1,16 @@
 """Main application window with navigation bar."""
 
-import customtkinter as ctk
 from typing import Optional
-from ui_ctk.views.base_view import BaseView
+
+import customtkinter as ctk
+
 from ui_ctk.constants import (
     APP_TITLE,
-    NAV_EMPLOYEES,
     NAV_ALERTS,
+    NAV_EMPLOYEES,
     NAV_IMPORT,
-    DEFAULT_WIDTH,
-    DEFAULT_HEIGHT,
 )
+from ui_ctk.views.base_view import BaseView
 
 
 class MainWindow(ctk.CTkFrame):
@@ -54,11 +54,7 @@ class MainWindow(ctk.CTkFrame):
         self.nav_bar.pack_propagate(False)
 
         # Title label
-        title_label = ctk.CTkLabel(
-            self.nav_bar,
-            text=APP_TITLE,
-            font=("Arial", 16, "bold")
-        )
+        title_label = ctk.CTkLabel(self.nav_bar, text=APP_TITLE, font=("Arial", 16, "bold"))
         title_label.pack(side="left", padx=20)
 
         # Button container (right side)
@@ -67,47 +63,28 @@ class MainWindow(ctk.CTkFrame):
 
         # Employee list button
         self.btn_employees = ctk.CTkButton(
-            button_container,
-            text=NAV_EMPLOYEES,
-            width=120,
-            command=self.show_employee_list
+            button_container, text=NAV_EMPLOYEES, width=120, command=self.show_employee_list
         )
         self.btn_employees.pack(side="left", padx=5)
 
         # Alerts button
-        self.btn_alerts = ctk.CTkButton(
-            button_container,
-            text=NAV_ALERTS,
-            width=120,
-            command=self.show_alerts
-        )
+        self.btn_alerts = ctk.CTkButton(button_container, text=NAV_ALERTS, width=120, command=self.show_alerts)
         self.btn_alerts.pack(side="left", padx=5)
 
         # Import button
-        self.btn_import = ctk.CTkButton(
-            button_container,
-            text=NAV_IMPORT,
-            width=140,
-            command=self.show_import
-        )
+        self.btn_import = ctk.CTkButton(button_container, text=NAV_IMPORT, width=140, command=self.show_import)
         self.btn_import.pack(side="left", padx=5)
 
     def create_view_container(self):
         """Create container for dynamic views."""
         self.view_container = ctk.CTkFrame(self)
-        self.view_container.pack(
-            side="top",
-            fill="both",
-            expand=True,
-            padx=10,
-            pady=10
-        )
+        self.view_container.pack(side="top", fill="both", expand=True, padx=10, pady=10)
 
     def clear_view(self):
         """Remove current view from container."""
         if self.current_view:
             # Call cleanup method if exists
-            if hasattr(self.current_view, 'cleanup'):
+            if hasattr(self.current_view, "cleanup"):
                 try:
                     self.current_view.cleanup()
                 except Exception as e:
@@ -149,12 +126,14 @@ class MainWindow(ctk.CTkFrame):
         """Display employee list view."""
         try:
             from ui_ctk.views.employee_list import EmployeeListView
+
             self.switch_view(EmployeeListView, title="Liste des Employés")
             print("[NAV] Showing employee list view")
         except ImportError as e:
             print(f"[WARN] EmployeeListView not implemented: {e}")
             # Show placeholder
             from ui_ctk.views.placeholder import PlaceholderView
+
             self.switch_view(PlaceholderView, title="Liste des Employés")
             print("[NAV] Showing placeholder for employee list")
         except Exception as e:
@@ -165,12 +144,14 @@ class MainWindow(ctk.CTkFrame):
         """Display alerts view."""
         try:
             from ui_ctk.views.alerts_view import AlertsView
+
             self.switch_view(AlertsView, title="Alertes")
             print("[NAV] Showing alerts view")
         except ImportError as e:
             print(f"[WARN] AlertsView not implemented: {e}")
             # Show placeholder
             from ui_ctk.views.placeholder import PlaceholderView
+
             self.switch_view(PlaceholderView, title="Alertes")
             print("[NAV] Showing placeholder for alerts")
         except Exception as e:
@@ -181,12 +162,14 @@ class MainWindow(ctk.CTkFrame):
         """Display import view."""
         try:
             from ui_ctk.views.import_view import ImportView
+
             self.switch_view(ImportView, title="Import Excel")
             print("[NAV] Showing import view")
         except ImportError as e:
             print(f"[WARN] ImportView not implemented: {e}")
             # Show placeholder
             from ui_ctk.views.placeholder import PlaceholderView
+
             self.switch_view(PlaceholderView, title="Import Excel")
             print("[NAV] Showing placeholder for import")
         except Exception as e:
@@ -197,6 +180,7 @@ class MainWindow(ctk.CTkFrame):
         """Show error message to user."""
         try:
             import tkinter.messagebox as messagebox
+
             messagebox.showerror("Error", message)
         except:
             print(f"[ERROR] {message}")
