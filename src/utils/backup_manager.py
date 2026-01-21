@@ -178,12 +178,13 @@ class BackupManager:
         Returns:
             True if valid SQLite database
         """
-        # Check if file exists first
-        if not path.exists():
+        # Check if file exists first (before SQLite tries to create it)
+        if not path.exists() or not path.is_file():
             return False
 
         try:
-            conn = sqlite3.connect(str(path))
+            # Open in read-only mode to prevent accidental file creation
+            conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
             cursor = conn.cursor()
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
             conn.close()

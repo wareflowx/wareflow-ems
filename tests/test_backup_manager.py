@@ -115,8 +115,12 @@ class TestBackupCreation:
 
     def test_create_backup_nonexistent_database(self):
         """Test creating backup when database doesn't exist."""
+        # Use temp directory to ensure file doesn't exist
+        temp_dir = Path(tempfile.mkdtemp())
+        nonexistent_db = temp_dir / "nonexistent_database.db"
+
         manager = BackupManager(
-            database_path=Path("nonexistent.db"),
+            database_path=nonexistent_db,
             backup_dir=Path(tempfile.mkdtemp())
         )
 
@@ -218,9 +222,9 @@ class TestBackupValidation:
 
     def test_validate_nonexistent_file(self, backup_manager):
         """Test validation of nonexistent file."""
-        assert backup_manager._validate_sqlite_database(
-            Path("nonexistent.db")
-        ) is False
+        # Use absolute path to ensure file doesn't exist
+        nonexistent_path = Path(tempfile.gettempdir()) / "truly_nonexistent_file_12345.db"
+        assert backup_manager._validate_sqlite_database(nonexistent_path) is False
 
 
 class TestBackupRestore:
@@ -289,8 +293,12 @@ class TestBackupRestore:
 
     def test_restore_nonexistent_backup(self, backup_manager):
         """Test restoring from nonexistent backup."""
+        # Use temp directory to ensure file doesn't exist
+        temp_dir = Path(tempfile.mkdtemp())
+        nonexistent_backup = temp_dir / "nonexistent_backup.db"
+
         with pytest.raises(FileNotFoundError):
-            backup_manager.restore_backup(Path("nonexistent.db"))
+            backup_manager.restore_backup(nonexistent_backup)
 
     def test_restore_invalid_backup(self, backup_manager):
         """Test restoring from invalid backup file."""
@@ -338,8 +346,12 @@ class TestEdgeCases:
         """Test that restore replaces database file."""
         backup_path = backup_manager.create_backup()
 
-        # Get original size
-        original_size = temp_database.stat().st_size
+        # Get original row count
+        conn = sqlite3.connect(str(temp_database))
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM test_table")
+        original_count = cursor.fetchone()[0]
+        conn.close()
 
         # Modify database
         conn = sqlite3.connect(str(temp_database))
@@ -347,16 +359,24 @@ class TestEdgeCases:
         for i in range(100):
             cursor.execute(f"INSERT INTO test_table (name) VALUES ('extra{i}')")
         conn.commit()
+        cursor.execute("SELECT COUNT(*) FROM test_table")
+        modified_count = cursor.fetchone()[0]
         conn.close()
 
-        # Verify database grew
-        assert temp_database.stat().st_size > original_size
+        # Verify data changed
+        assert modified_count > original_count
 
         # Restore
         backup_manager.restore_backup(backup_path)
 
-        # Verify database restored to original size
-        assert temp_database.stat().st_size == original_size
+        # Verify data restored
+        conn = sqlite3.connect(str(temp_database))
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM test_table")
+        restored_count = cursor.fetchone()[0]
+        conn.close()
+
+        assert restored_count == original_count
 
     def test_backup_manager_creates_backup_dir(self):
         """Test that BackupManager creates backup directory if needed."""
