@@ -6,5 +6,4 @@
 
 from . import caces, employee, lock, medical, report, training
 
-__all__ = ['employee', 'caces', 'medical', 'training', 'report', 'lock']
-
+__all__ = ["employee", "caces", "medical", "training", "report", "lock"]

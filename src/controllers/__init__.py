@@ -4,4 +4,4 @@ from .alerts_controller import AlertsController
 from .dashboard_controller import DashboardController
 from .employee_controller import EmployeeController
 
-__all__ = ['DashboardController', 'EmployeeController', 'AlertsController']
+__all__ = ["DashboardController", "EmployeeController", "AlertsController"]

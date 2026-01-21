@@ -63,12 +63,15 @@ def setup_database(db_path: str = "employee_manager.db"):
             database.connect()
 
         # Create tables if they don't exist
-        database.create_tables([
-            Employee,
-            Caces,
-            MedicalVisit,
-            OnlineTraining,
-        ], safe=True)
+        database.create_tables(
+            [
+                Employee,
+                Caces,
+                MedicalVisit,
+                OnlineTraining,
+            ],
+            safe=True,
+        )
 
         print(f"[OK] Database initialized: {db_path}")
         print("      Connected successfully")

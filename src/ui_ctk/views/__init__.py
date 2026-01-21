@@ -8,10 +8,10 @@ from .import_view import ImportView
 from .placeholder import PlaceholderView
 
 __all__ = [
-    'BaseView',
-    'EmployeeListView',
-    'EmployeeDetailView',
-    'AlertsView',
-    'ImportView',
-    'PlaceholderView',
+    "BaseView",
+    "EmployeeListView",
+    "EmployeeDetailView",
+    "AlertsView",
+    "ImportView",
+    "PlaceholderView",
 ]
