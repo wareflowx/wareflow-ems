@@ -15,7 +15,20 @@ from logging.handlers import RotatingFileHandler
 from datetime import datetime
 import json
 
-from utils.config import get_base_dir
+
+def get_base_dir() -> Path:
+    """
+    Get the base directory for the application.
+
+    Returns:
+        Path to base directory (src parent)
+    """
+    # Get the directory containing this file
+    current_dir = Path(__file__).parent
+    # Go up to src directory
+    src_dir = current_dir.parent
+    # Base directory is src's parent
+    return src_dir.parent
 
 
 class JSONFormatter(logging.Formatter):
