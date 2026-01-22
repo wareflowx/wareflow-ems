@@ -8,7 +8,7 @@ import customtkinter as ctk
 
 from employee.constants import EmployeeStatus
 from employee.models import Employee
-from employee.controller import EmployeeController
+from controllers.employee_controller import EmployeeController
 from utils.validation import InputValidator, ValidationError
 from ui_ctk.constants import (
     BTN_CANCEL,
