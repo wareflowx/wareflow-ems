@@ -202,6 +202,66 @@ def is_safe_filename(filename: str) -> bool:
     return True
 
 
+def validate_file_basic(
+    file_path: str,
+    allowed_extensions: Optional[set] = None,
+    max_size_mb: Optional[int] = None,
+) -> Tuple[bool, Optional[str]]:
+    """
+    Validate file basic properties (extension, size, existence).
+
+    This does NOT check if file is in a specific directory.
+    Use this for validating user-selected files before copying.
+
+    Args:
+        file_path: Path to validate
+        allowed_extensions: Allowed file extensions
+        max_size_mb: Maximum file size in MB
+
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if not file_path:
+        return False, "File path is required"
+
+    if allowed_extensions is None:
+        allowed_extensions = DEFAULT_ALLOWED_EXTENSIONS
+
+    if max_size_mb is None:
+        max_size_mb = DEFAULT_MAX_FILE_SIZE_MB
+
+    try:
+        path = Path(file_path).resolve()
+
+        # Check file exists
+        if not path.exists():
+            return False, "File does not exist"
+
+        # Must be a file, not a directory
+        if not path.is_file():
+            return False, "Path must be a file, not a directory"
+
+        # Validate file extension
+        if path.suffix.lower() not in allowed_extensions:
+            allowed_str = ", ".join(sorted(allowed_extensions))
+            return False, f"Only {allowed_str} files are allowed"
+
+        # Validate file size
+        size_bytes = path.stat().st_size
+        size_mb = size_bytes / (1024 * 1024)
+        if size_mb > max_size_mb:
+            return False, f"File size ({size_mb:.1f}MB) exceeds maximum ({max_size_mb}MB)"
+
+        return True, None
+
+    except PermissionError:
+        return False, "Permission denied accessing file"
+    except OSError as e:
+        return False, f"Invalid file path: {e}"
+    except Exception as e:
+        return False, f"Error validating file: {e}"
+
+
 def validate_and_copy_document(
     source_path: str,
     dest_dir: Optional[Path] = None,
@@ -212,7 +272,7 @@ def validate_and_copy_document(
     Validate document and copy to secure storage directory.
 
     This is the recommended function for handling document uploads:
-    1. Validates the source path
+    1. Validates the source path (extension, size, existence)
     2. Generates a unique filename
     3. Copies file to secure storage
     4. Returns the new secure path
@@ -241,10 +301,9 @@ def validate_and_copy_document(
     if dest_dir is None:
         dest_dir = DEFAULT_DOCUMENTS_DIR
 
-    # Validate source file
-    is_valid, error_msg = validate_document_path(
+    # Validate source file (without directory check - user can select from anywhere)
+    is_valid, error_msg = validate_file_basic(
         source_path,
-        allowed_dir=None,  # Source can be anywhere (user selected it)
         allowed_extensions=allowed_extensions,
         max_size_mb=max_size_mb
     )
