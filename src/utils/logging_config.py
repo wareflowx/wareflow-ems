@@ -37,7 +37,7 @@ class JSONFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         """Format log record as JSON."""
         log_data = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(datetime.UTC).isoformat().replace("+00:00", "Z"),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -69,8 +69,6 @@ def get_log_dir() -> Path:
     Returns:
         Path to logs directory
     """
-    from utils.config import get_base_dir
-
     log_dir = get_base_dir() / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     return log_dir
