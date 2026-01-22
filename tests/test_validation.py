@@ -199,7 +199,7 @@ class TestValidateDate:
 
     def test_validate_date_future_rejected(self):
         """Test that future dates are rejected by default."""
-        future_date = datetime(2099, 1, 1)
+        future_date = datetime(2050, 1, 1)
         with pytest.raises(ValidationError) as exc_info:
             InputValidator.validate_date(future_date, "test_date", allow_future=False)
         assert "future" in exc_info.value.message

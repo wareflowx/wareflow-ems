@@ -242,6 +242,11 @@ class InputValidator:
         if isinstance(value, datetime):
             if value.year < InputValidator.MIN_YEAR or value.year > InputValidator.MAX_YEAR:
                 raise ValidationError(field_name, f"Year out of range ({InputValidator.MIN_YEAR}-{InputValidator.MAX_YEAR})", value)
+
+            # Cannot be in future (unless allowed)
+            if not allow_future and value > datetime.now():
+                raise ValidationError(field_name, "Date cannot be in future", value)
+
             return value
 
         # If string, parse
