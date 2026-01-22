@@ -38,7 +38,7 @@ class InputValidator:
     # Character sets (simplified - \p{L} not supported in Python regex)
     # We'll validate using Unicode categories instead in the methods
     ALLOWED_EMAIL_CHARS = re.compile(r"^[a-zA-Z0-9._%+\-@]+$")
-    ALLOWED_PHONE_CHARS = re.compile(r"^[0-9+()\\-\s.]+$")
+    # Note: Phone validation is done in validate_phone() method, not with regex
 
     # Length limits
     MAX_LENGTH_FIRST_NAME = 50
@@ -122,14 +122,18 @@ class InputValidator:
         if not isinstance(value, str):
             raise ValidationError(field_name, "Must be string type", value)
 
-        # Sanitize
-        value = InputValidator.sanitize_string(value, max_length)
+        # Check for suspicious patterns FIRST (before sanitization)
+        if re.search(r'<script|javascript:|onerror=|onload=', value, re.IGNORECASE):
+            raise ValidationError(field_name, "Contains suspicious content", value)
 
-        # Length check
+        # Length check BEFORE sanitization
         if len(value) == 0:
             raise ValidationError(field_name, "Cannot be empty")
         if len(value) > max_length:
             raise ValidationError(field_name, f"Cannot exceed {max_length} characters")
+
+        # Sanitize
+        value = InputValidator.sanitize_string(value, max_length)
 
         # Character validation (allow Unicode letters, marks, hyphen, apostrophe, space)
         # Use Unicode categories: L (Letter), M (Mark)
@@ -139,10 +143,6 @@ class InputValidator:
             for char in value
         ):
             raise ValidationError(field_name, "Contains invalid characters", value)
-
-        # Check for suspicious patterns
-        if re.search(r'<script|javascript:|onerror=|onload=', value, re.IGNORECASE):
-            raise ValidationError(field_name, "Contains suspicious content", value)
 
         return value
 
@@ -169,12 +169,12 @@ class InputValidator:
         if value == "":
             return ""
 
-        # Sanitize
-        value = InputValidator.sanitize_string(value, InputValidator.MAX_LENGTH_EMAIL)
-
-        # Length check
+        # Length check BEFORE sanitization
         if len(value) > InputValidator.MAX_LENGTH_EMAIL:
             raise ValidationError("email", f"Cannot exceed {InputValidator.MAX_LENGTH_EMAIL} characters")
+
+        # Sanitize
+        value = InputValidator.sanitize_string(value, InputValidator.MAX_LENGTH_EMAIL)
 
         # Format validation (RFC 5322 basic)
         email_pattern = re.compile(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$')
