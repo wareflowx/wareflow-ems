@@ -36,14 +36,10 @@ class Migration(Model):
 
 def get_applied_migrations() -> set[str]:
     """Get set of applied migration names."""
-    try:
-        if database.is_closed():
-            database.connect()
+    if database.is_closed():
+        database.connect()
 
-        return {m.name for m in Migration.select(Migration.name)}
-    finally:
-        if not database.is_closed():
-            database.close()
+    return {m.name for m in Migration.select(Migration.name)}
 
 
 def record_migration(name: str, batch: int, rollback_name: Optional[str] = None) -> Migration:
@@ -71,13 +67,16 @@ def get_last_batch_number() -> int:
 
 
 def delete_migration(name: str) -> bool:
-    """Remove a migration record (for rollback)."""
+    """Remove a migration record (for rollback).
+
+    Args:
+        name: Migration name to remove
+
+    Returns:
+        True if migration was deleted, False otherwise
+    """
     if database.is_closed():
         database.connect()
 
-    try:
-        count = Migration.delete().where(Migration.name == name).execute()
-        return count > 0
-    finally:
-        if not database.is_closed():
-            database.close()
+    count = Migration.delete().where(Migration.name == name).execute()
+    return count > 0

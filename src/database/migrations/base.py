@@ -9,6 +9,7 @@ Migration Lifecycle:
 4. Rollback: removes record and calls down()
 """
 
+import importlib
 import re
 import shutil
 from abc import ABC, abstractmethod
@@ -161,6 +162,12 @@ def discover_migrations(migrations_dir: Path) -> list[Path]:
         if f.name not in ("__init__.py", "migration_model.py", "base.py")
     ]
 
+    # Also filter by migration name format (YYYYMMDD_HHMMSS_description)
+    migration_files = [
+        f for f in migration_files
+        if validate_migration_name(f.stem)
+    ]
+
     return migration_files
 
 
@@ -214,7 +221,8 @@ def get_pending_migrations(migrations_dir: Path) -> list[BaseMigration]:
 
         except Exception as e:
             logger.error(f"Failed to load migration {migration_name}: {e}")
-            raise MigrationError(f"Failed to load migration {migration_name}: {e}")
+            # Skip this migration and continue with others
+            continue
 
     return pending
 
@@ -238,11 +246,11 @@ def run_migration(migration: BaseMigration, batch: int) -> bool:
     if not migration.pre_check():
         raise MigrationError(f"Pre-check failed for migration: {migration.name}")
 
-    try:
-        # Connect to database
-        if database.is_closed():
-            database.connect()
+    # Connect to database if closed
+    if database.is_closed():
+        database.connect()
 
+    try:
         # Start transaction
         with database.atomic():
             # Apply migration
@@ -261,13 +269,13 @@ def run_migration(migration: BaseMigration, batch: int) -> bool:
             logger.info(f"Migration completed successfully: {migration.name}")
             return True
 
+    except MigrationError:
+        # Re-raise MigrationError as-is
+        raise
     except Exception as e:
+        # Wrap other exceptions in MigrationError
         logger.error(f"Migration failed: {migration.name} - {e}")
-        database.rollback()
-        raise MigrationError(f"Migration failed: {migration.name} - {e}")
-    finally:
-        if not database.is_closed():
-            database.close()
+        raise MigrationError(f"Migration failed: {migration.name} - {e}") from e
 
 
 def rollback_migration(migration: BaseMigration) -> bool:
@@ -284,11 +292,11 @@ def rollback_migration(migration: BaseMigration) -> bool:
     """
     logger.info(f"Rolling back migration: {migration.name}")
 
-    try:
-        # Connect to database
-        if database.is_closed():
-            database.connect()
+    # Connect to database if closed
+    if database.is_closed():
+        database.connect()
 
+    try:
         # Start transaction
         with database.atomic():
             # Rollback migration
@@ -302,10 +310,10 @@ def rollback_migration(migration: BaseMigration) -> bool:
             logger.info(f"Migration rolled back successfully: {migration.name}")
             return True
 
+    except RollbackError:
+        # Re-raise RollbackError as-is
+        raise
     except Exception as e:
+        # Wrap other exceptions in RollbackError
         logger.error(f"Rollback failed: {migration.name} - {e}")
-        database.rollback()
-        raise RollbackError(f"Rollback failed: {migration.name} - {e}")
-    finally:
-        if not database.is_closed():
-            database.close()
+        raise RollbackError(f"Rollback failed: {migration.name} - {e}") from e
