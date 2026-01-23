@@ -17,7 +17,7 @@ import os
 import shutil
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -118,7 +118,7 @@ This file is auto-generated during the build process.
 """
 
 __version__ = "{version}"
-__build_date__ = "{datetime.utcnow().isoformat()}"
+__build_date__ = "{datetime.now(timezone.utc).isoformat()}"
 __build_type__ = "standalone"
 '''
 
@@ -208,7 +208,7 @@ def build_executable(build_type="gui", version=None, clean=False, skip_tests=Fal
         f.write(f"Wareflow Employee Management System\n")
         f.write(f"Version: {version}\n")
         f.write(f"Build Type: {build_type.upper()}\n")
-        f.write(f"Build Date: {datetime.utcnow().isoformat()}\n")
+        f.write(f"Build Date: {datetime.now(timezone.utc).isoformat()}\n")
         f.write(f"Platform: {sys.platform}\n")
         f.write(f"Python: {sys.version.split()[0]}\n")
 
