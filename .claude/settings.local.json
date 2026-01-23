@@ -14,7 +14,12 @@
       "Bash(gh pr view:*)",
       "Bash(git merge-tree:*)",
       "Bash(git pull:*)",
-      "Bash(gh issue list:*)"
+      "Bash(gh issue list:*)",
+      "Bash(gh label list:*)",
+      "Bash(gh issue edit:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(pytest:*)",
+      "Bash(gh run:*)"
     ]
   }
 }
