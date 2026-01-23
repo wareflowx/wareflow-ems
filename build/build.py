@@ -214,7 +214,7 @@ def build_executable(build_type="gui", version=None, clean=False, skip_tests=Fal
 
     artifacts.append((version_file, None))
 
-    print(f"\n✅ {build_name.upper()} build complete!")
+    print(f"\n[OK] {build_name.upper()} build complete!")
     print(f"\nArtifacts created in dist/{build_name}/:")
     for artifact, checksum in artifacts:
         if checksum:
@@ -278,7 +278,7 @@ def print_summary(artifacts):
                 print(f"  SHA256: {checksum}")
 
     print(f"\nTotal size: {total_size / (1024 * 1024):.2f} MB")
-    print("\n✅ All builds completed successfully!")
+    print("\n[OK] All builds completed successfully!")
 
 
 def main():
