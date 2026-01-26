@@ -22,11 +22,12 @@
 10. [CLI Interface](#-cli-interface)
 11. [Testing](#-testing)
 12. [Development](#-development)
-13. [Changelog](#-changelog)
-14. [Roadmap](#-roadmap)
-15. [Contributing](#-contributing)
-16. [License](#-license)
-17. [Contact](#-contact)
+13. [Release Guide](#-release-guide)
+14. [Changelog](#-changelog)
+15. [Roadmap](#-roadmap)
+16. [Contributing](#-contributing)
+17. [License](#-license)
+18. [Contact](#-contact)
 
 ---
 
@@ -128,6 +129,26 @@ Wareflow EMS is a modern Python desktop application designed for logistics and w
 ---
 
 ## 🚀 Installation
+
+### Method 0: Download Windows Executable (Easiest)
+
+**No Python installation required!** Download the pre-built Windows executable:
+
+1. Go to [Releases](https://github.com/wareflowx/wareflow-ems/releases)
+2. Download the latest `Wareflow-EMS-X.X.X.exe`
+3. Run the executable
+4. Application will create database on first launch
+
+**Benefits:**
+- ⚡ 5-minute setup vs 30+ minutes with Python
+- 🔒 All dependencies bundled
+- 🎨 No technical knowledge required
+- ✅ Official tested releases
+
+**System Requirements:**
+- Windows 10 or later
+- 100 MB free disk space
+- No additional dependencies
 
 ### Method 1: uv (Recommended)
 
@@ -522,6 +543,58 @@ python build/build.py
 
 # Output: dist/employee_manager.exe
 ```
+
+---
+
+## 📦 Release Guide
+
+Wareflow EMS uses automated releases with GitHub Actions. Creating a release is as simple as pushing a Git tag.
+
+### Quick Release
+
+```bash
+# 1. Update version in pyproject.toml
+# 2. Commit and push
+git add .
+git commit -m "chore: release v1.0.0"
+git push origin main
+
+# 3. Create and push tag
+git tag v1.0.0
+git push --tags
+
+# That's it! GitHub Actions will:
+# - Run tests
+# - Build Windows .exe
+# - Create GitHub release
+# - Upload executable
+```
+
+### Download Releases
+
+Pre-built Windows executables are available at [Releases](https://github.com/wareflowx/wareflow-ems/releases).
+
+No Python installation required - just download and run!
+
+### Local Build
+
+```bash
+# Install build dependencies
+uv sync --extra build
+
+# Build Windows .exe
+python scripts/build.py
+
+# Output: dist/Wareflow EMS.exe
+```
+
+### Documentation
+
+See [RELEASE_GUIDE.md](docs/RELEASE_GUIDE.md) for detailed information about:
+- Version numbering
+- Release checklist
+- Troubleshooting
+- Rollback procedures
 
 ---
 
