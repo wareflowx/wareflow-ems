@@ -1,6 +1,8 @@
 """Employee list view with search and filtering."""
 
-from typing import List
+from datetime import datetime
+from pathlib import Path
+from typing import List, Optional
 
 import customtkinter as ctk
 
@@ -24,6 +26,7 @@ from ui_ctk.constants import (
 )
 from src.controllers.employee_controller import EmployeeController
 from ui_ctk.views.base_view import BaseView
+from ui_ctk.widgets.export_button import ExportButton
 
 
 class EmployeeListView(BaseView):
@@ -93,6 +96,16 @@ class EmployeeListView(BaseView):
         # Buttons
         button_frame = ctk.CTkFrame(control_frame, fg_color="transparent")
         button_frame.pack(side="right", padx=10)
+
+        # Export button
+        self.export_btn = ExportButton(
+            button_frame,
+            get_employees_func=self.get_employees_for_export,
+            title="Export Employees to Excel",
+            default_filename=f"employees_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+            on_export_complete=self.on_export_complete,
+        )
+        self.export_btn.pack(side="left", padx=5)
 
         # Add employee button
         self.add_btn = ctk.CTkButton(button_frame, text=f"+ {BTN_ADD}", width=120, command=self.add_employee)
@@ -312,6 +325,29 @@ class EmployeeListView(BaseView):
             messagebox.showerror("Erreur", message)
         except:
             print(f"[ERROR] {message}")
+
+    def get_employees_for_export(self) -> List[Employee]:
+        """
+        Get filtered employees for export.
+
+        Returns:
+            List of employees currently displayed in the table
+        """
+        # Export currently filtered employees
+        return self.filtered_employees if self.filtered_employees else self.employees
+
+    def on_export_complete(self, success: bool, output_path: Optional[Path]) -> None:
+        """
+        Handle export completion.
+
+        Args:
+            success: Whether export succeeded
+            output_path: Path where file was saved, or None if failed
+        """
+        if success and output_path:
+            print(f"[INFO] Export completed: {output_path}")
+        elif not success:
+            print(f"[WARN] Export failed or was cancelled")
 
     def refresh(self):
         """Refresh the view (called by parent)."""
