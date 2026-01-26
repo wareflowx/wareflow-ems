@@ -14,6 +14,7 @@ from ui_ctk.constants import (
     DEFAULT_HEIGHT,
 )
 from ui_ctk.views.base_view import BaseView
+from utils.undo_manager import get_undo_manager
 
 
 class MainWindow(ctk.CTkFrame):
@@ -42,9 +43,18 @@ class MainWindow(ctk.CTkFrame):
         # Track current view
         self.current_view: Optional[BaseView] = None
 
+        # Get undo manager instance
+        self.undo_manager = get_undo_manager()
+
         # Create UI components
         self.create_navigation_bar()
         self.create_view_container()
+
+        # Bind keyboard shortcuts
+        self.bind_keyboard_shortcuts()
+
+        # Register callback for undo/redo state changes
+        self.undo_manager.register_history_callback(self.update_undo_redo_buttons)
 
         # Show default view (employee list)
         self.show_employee_list()
@@ -95,6 +105,30 @@ class MainWindow(ctk.CTkFrame):
             command=self.show_trash
         )
         self.btn_trash.pack(side="left", padx=5)
+
+        # Separator
+        separator = ctk.CTkLabel(button_container, text="|", width=20)
+        separator.pack(side="left", padx=5)
+
+        # Undo button
+        self.btn_undo = ctk.CTkButton(
+            button_container,
+            text="↶ Undo",
+            width=100,
+            command=self.perform_undo,
+            state="disabled"
+        )
+        self.btn_undo.pack(side="left", padx=5)
+
+        # Redo button
+        self.btn_redo = ctk.CTkButton(
+            button_container,
+            text="↷ Redo",
+            width=100,
+            command=self.perform_redo,
+            state="disabled"
+        )
+        self.btn_redo.pack(side="left", padx=5)
 
     def create_view_container(self):
         """Create container for dynamic views."""
@@ -339,3 +373,77 @@ class MainWindow(ctk.CTkFrame):
             messagebox.showerror("Error", message)
         except:
             print(f"[ERROR] {message}")
+
+    # ===== Undo/Redo Methods =====
+
+    def bind_keyboard_shortcuts(self):
+        """Bind keyboard shortcuts for undo and redo."""
+        try:
+            # Bind Ctrl+Z for undo
+            self.master_window.bind_all("<Control-z>", lambda e: self.perform_undo())
+            # Bind Ctrl+Y for redo
+            self.master_window.bind_all("<Control-y>", lambda e: self.perform_redo())
+            # Also bind Ctrl+Shift+Z for redo (common alternative)
+            self.master_window.bind_all("<Control-Z>", lambda e: self.perform_redo())
+        except Exception as e:
+            print(f"[WARN] Failed to bind keyboard shortcuts: {e}")
+
+    def perform_undo(self):
+        """Perform undo operation."""
+        try:
+            action = self.undo_manager.undo()
+            if action:
+                print(f"[UNDO] Undone: {action.description}")
+                self._show_undo_redo_notification(f"Undone: {action.description}")
+            else:
+                print("[UNDO] Nothing to undo")
+        except Exception as e:
+            print(f"[ERROR] Undo failed: {e}")
+            self.show_error(f"Undo failed: {e}")
+
+    def perform_redo(self):
+        """Perform redo operation."""
+        try:
+            action = self.undo_manager.redo()
+            if action:
+                print(f"[REDO] Redone: {action.description}")
+                self._show_undo_redo_notification(f"Redone: {action.description}")
+            else:
+                print("[REDO] Nothing to redo")
+        except Exception as e:
+            print(f"[ERROR] Redo failed: {e}")
+            self.show_error(f"Redo failed: {e}")
+
+    def update_undo_redo_buttons(self):
+        """Update undo/redo button states based on history."""
+        try:
+            # Update undo button
+            if self.undo_manager.can_undo():
+                self.btn_undo.configure(state="normal")
+                description = self.undo_manager.get_undo_description()
+                if description:
+                    self.btn_undo.configure(text=f"↶ Undo: {description[:30]}...")
+            else:
+                self.btn_undo.configure(state="disabled", text="↶ Undo")
+
+            # Update redo button
+            if self.undo_manager.can_redo():
+                self.btn_redo.configure(state="normal")
+                description = self.undo_manager.get_redo_description()
+                if description:
+                    self.btn_redo.configure(text=f"↷ Redo: {description[:30]}...")
+            else:
+                self.btn_redo.configure(state="disabled", text="↷ Redo")
+        except Exception as e:
+            print(f"[WARN] Failed to update undo/redo buttons: {e}")
+
+    def _show_undo_redo_notification(self, message: str):
+        """Show a brief notification for undo/redo actions.
+
+        Args:
+            message: Notification message to display
+        """
+        # For now, just print to console
+        # In future versions, this could show a toast notification
+        # or update a status bar
+        pass

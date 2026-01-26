@@ -4,7 +4,8 @@ from datetime import date
 
 import customtkinter as ctk
 
-from employee.models import Caces, Employee, MedicalVisit
+from employee.models import Caces, Employee, MedicalVisit, OnlineTraining
+from utils.undo_manager import record_delete
 from ui_ctk.constants import (
     BTN_ADD,
     BTN_BACK,
@@ -393,6 +394,9 @@ class EmployeeDetailView(BaseView):
                 # Soft delete employee
                 self.employee.soft_delete(reason="Deleted by user", deleted_by=None)
 
+                # Record for undo
+                record_delete(self.employee, f"Delete employee {self.employee.full_name}", "employee")
+
                 print(f"[OK] Employee moved to trash: {self.employee.full_name}")
 
                 # Go back to list
@@ -469,6 +473,9 @@ class EmployeeDetailView(BaseView):
                 # Soft delete CACES
                 caces.soft_delete(reason="Deleted by user", deleted_by=None)
 
+                # Record for undo
+                record_delete(caces, f"Delete CACES {caces.kind}", "caces")
+
                 print(f"[OK] CACES moved to trash: {caces.kind}")
 
                 # Refresh view
@@ -529,6 +536,10 @@ class EmployeeDetailView(BaseView):
             if confirm:
                 # Soft delete visit
                 visit.soft_delete(reason="Deleted by user", deleted_by=None)
+
+                # Record for undo
+                record_delete(visit, f"Delete medical visit ({visit_type_label})", "medical_visit")
+
                 print(f"[OK] Medical visit moved to trash: {visit_type_label}")
 
                 # Refresh view
