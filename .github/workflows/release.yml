@@ -51,8 +51,8 @@ jobs:
       - name: Rename executable with version
         run: |
           $VERSION = "${{ env.VERSION }}"
-          if (Test-Path "dist\Wareflow EMS.exe") {
-            Move-Item "dist\Wareflow EMS.exe" "dist\Wareflow-EMS-$VERSION.exe"
+          if (Test-Path "dist\wems.exe") {
+            Move-Item "dist\wems.exe" "dist\wems-$VERSION.exe"
           }
 
       - name: Get file size
@@ -67,7 +67,7 @@ jobs:
         run: |
           $FILE = Get-Item "dist\*.exe"
           $HASH = (Get-FileHash -Algorithm SHA256 $FILE).Hash
-          echo $HASH > "dist\Wareflow-EMS-${{ env.VERSION }}.exe.sha256"
+          echo $HASH > "dist\wems-${{ env.VERSION }}.exe.sha256"
           echo "SHA256: $HASH"
 
       - name: Generate release notes
@@ -75,7 +75,7 @@ jobs:
         run: |
           $VERSION = "${{ env.VERSION }}"
           $NOTES = @"
-          ## Wareflow EMS $VERSION
+          ## WEMS $VERSION
 
           ### What's Included
           - Windows executable (.exe) - ${{ env.SIZE_MB }} MB
@@ -83,7 +83,7 @@ jobs:
           - All dependencies bundled
 
           ### How to Install
-          1. Download `Wareflow-EMS-$VERSION.exe` below
+          1. Download `wems-$VERSION.exe` below
           2. Run the executable
           3. Application will create database on first launch
 
@@ -96,7 +96,7 @@ jobs:
           - No additional dependencies
 
           ---
-          **Full Changelog**: https://github.com/wareflowx/wareflow-ems/compare/${{ github.event.release.previous_tag_name }}...v$VERSION
+          **Full Changelog**: https://github.com/wareflowx/wems/compare/${{ github.event.release.previous_tag_name }}...v$VERSION
           "@
           $NOTES | Out-File -Encoding UTF8 "release_notes.md"
           echo "Created release_notes.md"
@@ -104,7 +104,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Wareflow EMS ${{ env.VERSION }}
+          name: WEMS ${{ env.VERSION }}
           body_path: release_notes.md
           draft: false
           prerelease: false
@@ -117,7 +117,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: wareflow-ems-${{ env.VERSION }}-windows
+          name: wems-${{ env.VERSION }}-windows
           path: |
             dist/*.exe
             dist/*.sha256

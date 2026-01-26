@@ -83,7 +83,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='Wareflow EMS',
+    name='wems',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
