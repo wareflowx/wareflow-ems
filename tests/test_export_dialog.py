@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from database.models import Employee
+from employee.models import Employee
 from ui_ctk.widgets.export_button import ExportButton
 
 

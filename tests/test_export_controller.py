@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from controllers.export_controller import ExportController
-from database.models import Employee
+from employee.models import Employee
 
 
 @pytest.fixture
