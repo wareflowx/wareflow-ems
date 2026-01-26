@@ -15,6 +15,7 @@ from database.migration_model import get_applied_migrations, get_last_batch_numb
 from database.version import check_migration_needed, initialize_version_tracking
 from database.version_model import AppVersion, get_current_app_version, set_version
 from database.version import APP_VERSION, SCHEMA_VERSION
+from database.migration_validation import validate_before_migration, validate_after_migration
 from employee.models import Caces, Employee, MedicalVisit, OnlineTraining
 from lock.models import AppLock
 from utils.backup_manager import BackupManager
@@ -97,6 +98,15 @@ class MigrationManager:
             Tuple of (success: bool, message: str)
         """
         try:
+            # Run pre-migration validation
+            logger.info("Running pre-migration validation checks...")
+            validation_success, validation_errors = validate_before_migration()
+            if not validation_success:
+                error_msg = f"Pre-migration validation failed: {'; '.join(validation_errors)}"
+                logger.error(error_msg)
+                return False, error_msg
+            logger.info("Pre-migration validation passed")
+
             # Create backup before migration
             logger.info("Creating pre-migration backup...")
             backup_path = self.backup_manager.create_backup("pre_migration")
@@ -134,6 +144,15 @@ class MigrationManager:
                 record_migration(migration_name, batch)
 
                 logger.info(f"Migration {i}/{len(pending_migrations)} completed: {migration_name}")
+
+            # Run post-migration validation
+            logger.info("Running post-migration validation checks...")
+            validation_success, validation_errors = validate_after_migration()
+            if not validation_success:
+                error_msg = f"Post-migration validation failed: {'; '.join(validation_errors)}"
+                logger.error(error_msg)
+                return False, error_msg
+            logger.info("Post-migration validation passed")
 
             # Update version record after all migrations succeed
             self._update_version_record()
