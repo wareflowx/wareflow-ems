@@ -29,7 +29,7 @@ def sample_employees(db):
             workspace="Warehouse A",
             role="Operator",
             contract_type="CDI",
-            is_active=True,
+            current_status="active",
         )
         employees.append(emp)
     return employees

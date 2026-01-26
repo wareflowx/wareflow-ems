@@ -22,7 +22,7 @@ def sample_employees(db):
             workspace="Warehouse A",
             role="Operator",
             contract_type="CDI",
-            is_active=True,
+            current_status="active",
         )
         employees.append(emp)
     return employees
@@ -121,7 +121,7 @@ class TestExportButton:
 class TestExportButtonIntegration:
     """Integration tests for ExportButton with ExportController."""
 
-    def test_export_button_with_empty_list(self, db_session):
+    def test_export_button_with_empty_list(self, db):
         """Test ExportButton behavior with empty employee list."""
         parent = MagicMock()
 
@@ -138,7 +138,7 @@ class TestExportButtonIntegration:
             result = button.get_employees_func()
             assert len(result) == 0
 
-    def test_export_button_filters_employees(self, db_session):
+    def test_export_button_filters_employees(self, db):
         """Test ExportButton with filtered employee list."""
         parent = MagicMock()
 
@@ -147,13 +147,13 @@ class TestExportButtonIntegration:
             first_name="Active",
             last_name="Employee",
             email="active@example.com",
-            is_active=True,
+            current_status="active",
         )
         inactive_emp = Employee.create(
             first_name="Inactive",
             last_name="Employee",
             email="inactive@example.com",
-            is_active=False,
+            current_status="inactive",
         )
 
         # Return only active employees
