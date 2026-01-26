@@ -1,15 +1,19 @@
 """Alerts view showing expiring certifications and visits."""
 
-from typing import List
+from datetime import datetime
+from pathlib import Path
+from typing import List, Optional
 
 import customtkinter as ctk
 
 from employee.alerts import Alert, AlertQuery, AlertType, UrgencyLevel
+from employee.models import Employee
 from ui_ctk.constants import (
     BTN_REFRESH,
     DATE_FORMAT,
 )
 from ui_ctk.views.base_view import BaseView
+from ui_ctk.widgets.export_button import ExportButton
 
 
 class AlertsView(BaseView):
@@ -82,6 +86,16 @@ class AlertsView(BaseView):
         # Refresh button
         button_frame = ctk.CTkFrame(control_frame, fg_color="transparent")
         button_frame.pack(side="right", padx=10)
+
+        # Export button
+        self.export_btn = ExportButton(
+            button_frame,
+            get_employees_func=self.get_employees_for_export,
+            title="Export Alerts to Excel",
+            default_filename=f"alerts_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+            on_export_complete=self.on_export_complete,
+        )
+        self.export_btn.pack(side="left", padx=5)
 
         refresh_btn = ctk.CTkButton(button_frame, text=BTN_REFRESH, width=120, command=self.refresh_alerts)
         refresh_btn.pack(side="left", padx=5)
@@ -276,6 +290,30 @@ class AlertsView(BaseView):
 
         except Exception as e:
             print(f"[ERROR] Failed to show employee detail: {e}")
+
+    def get_employees_for_export(self) -> List[Employee]:
+        """
+        Get employees with alerts for export.
+
+        Returns:
+            List of unique employees that have alerts
+        """
+        # Get unique employees from alerts
+        employees = list({alert.employee for alert in self.alerts})
+        return employees
+
+    def on_export_complete(self, success: bool, output_path: Optional[Path]) -> None:
+        """
+        Handle export completion.
+
+        Args:
+            success: Whether export succeeded
+            output_path: Path where file was saved, or None if failed
+        """
+        if success and output_path:
+            print(f"[INFO] Export completed: {output_path}")
+        elif not success:
+            print(f"[WARN] Export failed or was cancelled")
 
     def refresh(self):
         """Refresh the view (called by parent)."""
