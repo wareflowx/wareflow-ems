@@ -29,6 +29,7 @@ hiddenimports = [
     'tkinter',
     'tkinter.ttk',
     'sqlite3',
+    # 'magic',  # Removed: causes PyInstaller crash
 ]
 
 # Collect submodules

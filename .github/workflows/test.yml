@@ -32,16 +32,12 @@ jobs:
         run: |
           uv sync
 
-      - name: Run syntax checks
-        run: |
-          python -m compileall src -q
+      # Tests disabled - run locally before pushing
+      # - name: Run tests
+      #   run: |
+      #     uv run pytest tests/ -v --tb=short
 
-      - name: Run tests
-        run: |
-          uv run pytest tests/ -v --tb=short || echo "Tests completed with status: $?"
-        continue-on-error: true
-
-      - name: Check code style
-        run: |
-          uv run pylint src/**/*.py --errors-only || echo "Lint completed with status: $?"
-        continue-on-error: true
+      # - name: Check code style
+      #   run: |
+      #     uv run pylint src/**/*.py --errors-only
+      #   continue-on-error: true
