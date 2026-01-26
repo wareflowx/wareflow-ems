@@ -7,7 +7,7 @@ import customtkinter as ctk
 import tkinter.filedialog as filedialog
 
 from controllers.export_controller import ExportController
-from database.models import Employee
+from employee.models import Employee
 from ui_ctk.constants import APP_TITLE
 
 
