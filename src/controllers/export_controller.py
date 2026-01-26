@@ -8,7 +8,7 @@ import threading
 from pathlib import Path
 from typing import Callable, Optional
 
-from database.models import Employee
+from employee.models import Employee
 from export.excel import export_employees_to_excel
 
 
