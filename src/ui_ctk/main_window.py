@@ -108,13 +108,23 @@ class MainWindow(ctk.CTkFrame):
 
     def switch_view(self, view_class: type, *args, **kwargs):
         """
-        Switch to a new view.
+        Switch to a new view with unsaved changes detection.
 
         Args:
             view_class: View class to instantiate
             *args: Positional arguments for view constructor
             **kwargs: Keyword arguments for view constructor
         """
+        # Check if current view has unsaved changes
+        if self._check_current_view_unsaved():
+            response = self._prompt_unsaved_changes()
+
+            if response == 'cancel':
+                return  # Cancel navigation
+            elif response == 'save':
+                if not self._save_current_view():
+                    return  # Save failed, cancel navigation
+
         # Remove current view
         self.clear_view()
 
@@ -124,6 +134,97 @@ class MainWindow(ctk.CTkFrame):
 
         # Update button states
         self.update_navigation_state()
+
+    def _check_current_view_unsaved(self) -> bool:
+        """Check if current view has unsaved changes.
+
+        Returns:
+            True if there are unsaved changes, False otherwise
+        """
+        if not self.current_view:
+            return False
+
+        # Check if view has unsaved_changes method
+        if hasattr(self.current_view, 'has_unsaved_changes'):
+            try:
+                if self.current_view.has_unsaved_changes():
+                    return True
+            except Exception as e:
+                print(f"[WARN] Error checking unsaved changes: {e}")
+
+        # Check for open form dialogs
+        try:
+            # Get all open toplevel windows
+            for widget in self.view_container.winfo_children():
+                if hasattr(widget, 'has_unsaved_changes'):
+                    try:
+                        if widget.has_unsaved_changes():
+                            return True
+                    except Exception:
+                        pass
+        except Exception as e:
+            print(f"[WARN] Error checking child widgets: {e}")
+
+        return False
+
+    def _prompt_unsaved_changes(self) -> str:
+        """Prompt user about unsaved changes before navigation.
+
+        Returns:
+            'save', 'discard', or 'cancel'
+        """
+        try:
+            import tkinter.messagebox as messagebox
+
+            response = messagebox.askyesnocancel(
+                "Unsaved Changes",
+                "You have unsaved changes in the current view.\n\n"
+                "Do you want to save them before switching?",
+                icon='warning'
+            )
+
+            if response is None:  # Cancel
+                return 'cancel'
+            elif response:  # Yes - save
+                return 'save'
+            else:  # No - discard
+                return 'discard'
+        except Exception:
+            # Fallback if messagebox fails
+            return 'discard'
+
+    def _save_current_view(self) -> bool:
+        """Attempt to save the current view.
+
+        Returns:
+            True if save successful, False otherwise
+        """
+        if not self.current_view:
+            return True
+
+        # Try to call save method on current view
+        if hasattr(self.current_view, 'save'):
+            try:
+                self.current_view.save()
+                return True
+            except Exception as e:
+                print(f"[ERROR] Failed to save current view: {e}")
+
+                # Show error to user
+                try:
+                    import tkinter.messagebox as messagebox
+                    messagebox.showerror(
+                        "Save Error",
+                        f"Failed to save changes:\n{e}\n\n"
+                        "Navigation cancelled."
+                    )
+                except Exception:
+                    pass
+
+                return False
+
+        # No save method, assume no save needed
+        return True
 
     def update_navigation_state(self):
         """Update navigation button states to show active section."""
