@@ -87,6 +87,15 @@ class MainWindow(ctk.CTkFrame):
         )
         self.btn_backups.pack(side="left", padx=5)
 
+        # Trash button
+        self.btn_trash = ctk.CTkButton(
+            button_container,
+            text="🗑️ Trash",
+            width=120,
+            command=self.show_trash
+        )
+        self.btn_trash.pack(side="left", padx=5)
+
     def create_view_container(self):
         """Create container for dynamic views."""
         self.view_container = ctk.CTkFrame(self)
@@ -304,6 +313,23 @@ class MainWindow(ctk.CTkFrame):
         except Exception as e:
             print(f"[ERROR] Failed to load backup view: {e}")
             self.show_error(f"Failed to load backup view: {e}")
+
+    def show_trash(self):
+        """Display trash view for viewing and restoring deleted items."""
+        try:
+            from ui_ctk.views.trash_view import TrashView
+            self.switch_view(TrashView)
+            print("[NAV] Showing trash view")
+        except ImportError as e:
+            print(f"[WARN] TrashView not implemented: {e}")
+            # Show placeholder
+            from ui_ctk.views.placeholder import PlaceholderView
+
+            self.switch_view(PlaceholderView, title="Trash")
+            print("[NAV] Showing placeholder for trash")
+        except Exception as e:
+            print(f"[ERROR] Failed to load trash view: {e}")
+            self.show_error(f"Failed to load trash: {e}")
 
     def show_error(self, message: str):
         """Show error message to user."""
