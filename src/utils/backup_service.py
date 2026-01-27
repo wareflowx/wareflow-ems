@@ -44,7 +44,7 @@ class BackupService:
         """
         # Use current database connection if path not provided
         if database_path is None:
-            database_path = Path(database.database.database)
+            database_path = Path(database.database)
 
         # Initialize configuration
         self.config = BackupConfig(config_path=config_path)
