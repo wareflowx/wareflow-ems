@@ -26,12 +26,25 @@ def temp_database():
     temp_dir = tempfile.mkdtemp()
     db_path = Path(temp_dir) / "test.db"
 
-    # Create test database with sample data
+    # Create test database with sample data and required employee schema
     conn = sqlite3.connect(str(db_path))
     cursor = conn.cursor()
+
+    # Create required employee tables
+    cursor.execute("CREATE TABLE employees (id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT)")
+    cursor.execute("CREATE TABLE caces (id INTEGER PRIMARY KEY, employee_id INTEGER, kind TEXT)")
+    cursor.execute("CREATE TABLE medical_visits (id INTEGER PRIMARY KEY, employee_id INTEGER, visit_date TEXT)")
+    cursor.execute("CREATE TABLE online_trainings (id INTEGER PRIMARY KEY, employee_id INTEGER, title TEXT)")
+
+    # Create additional test table
     cursor.execute("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
     cursor.execute("INSERT INTO test_table (name) VALUES ('test1')")
     cursor.execute("INSERT INTO test_table (name) VALUES ('test2')")
+
+    # Insert sample employee data
+    cursor.execute("INSERT INTO employees (first_name, last_name) VALUES ('John', 'Doe')")
+    cursor.execute("INSERT INTO employees (first_name, last_name) VALUES ('Jane', 'Smith')")
+
     conn.commit()
     conn.close()
 
@@ -392,3 +405,142 @@ class TestEdgeCases:
 
         # Cleanup
         shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+class TestBackupVerification:
+    """Test backup verification functionality."""
+
+    def test_verify_valid_backup(self, backup_manager):
+        """Test verification of valid backup."""
+        backup_path = backup_manager.create_backup()
+
+        result = backup_manager.verify_backup(backup_path)
+
+        assert result['valid'] is True
+        assert result['size_bytes'] > 0
+        assert result['size_mb'] > 0
+        assert result['employee_count'] >= 0
+        assert 'test_table' in result['tables']
+        assert result['error'] is None
+
+    def test_verify_nonexistent_backup(self, backup_manager):
+        """Test verification of nonexistent backup."""
+        nonexistent = Path(tempfile.mkdtemp()) / "nonexistent.db"
+
+        with pytest.raises(FileNotFoundError):
+            backup_manager.verify_backup(nonexistent)
+
+    def test_verify_corrupted_backup(self, backup_manager):
+        """Test verification of corrupted backup file."""
+        # Create a larger file that still isn't a valid database
+        corrupted_file = backup_manager.backup_dir / "corrupted.db"
+        corrupted_file.write_text("X" * 5000)  # 5 KB of invalid data
+
+        result = backup_manager.verify_backup(corrupted_file)
+
+        assert result['valid'] is False
+        assert result['error'] is not None
+        # Error should mention SQLite or be about invalid database
+        assert "SQLite" in result['error'] or "database" in result['error'].lower()
+
+    def test_verify_empty_backup(self, backup_manager):
+        """Test verification of empty backup file."""
+        empty_file = backup_manager.backup_dir / "empty.db"
+        empty_file.write_text("")
+
+        result = backup_manager.verify_backup(empty_file)
+
+        assert result['valid'] is False
+        assert result['size_bytes'] == 0
+        assert "too small" in result['error']
+
+    def test_verify_backup_size_information(self, backup_manager):
+        """Test that verification provides accurate size information."""
+        backup_path = backup_manager.create_backup()
+
+        # Add some data to make backup larger
+        conn = sqlite3.connect(str(backup_manager.database_path))
+        cursor = conn.cursor()
+        for i in range(100):
+            cursor.execute(f"INSERT INTO test_table (name) VALUES ('test{i}')")
+        conn.commit()
+        conn.close()
+
+        backup_path2 = backup_manager.create_backup()
+
+        result = backup_manager.verify_backup(backup_path2)
+
+        assert result['size_bytes'] > 1024  # At least 1 KB
+        assert result['size_mb'] >= 0.01
+        assert isinstance(result['size_bytes'], int)
+        assert isinstance(result['size_mb'], float)
+
+    def test_verify_backup_tables_list(self, backup_manager):
+        """Test that verification lists all tables."""
+        backup_path = backup_manager.create_backup()
+
+        result = backup_manager.verify_backup(backup_path)
+
+        assert isinstance(result['tables'], list)
+        assert 'test_table' in result['tables']
+        # Check for employee tables
+        assert 'employees' in result['tables']
+        # sqlite_sequence only appears with AUTOINCREMENT, so don't require it
+
+    def test_verify_backup_database_with_employee_data(self, backup_manager, temp_database):
+        """Test verification with realistic employee database schema."""
+        # The fixture already creates the required tables and 2 employees
+        # Create and verify backup
+        backup_path = backup_manager.create_backup()
+        result = backup_manager.verify_backup(backup_path)
+
+        assert result['valid'] is True
+        assert result['employee_count'] == 2  # Fixture creates 2 employees
+        assert 'employees' in result['tables']
+        assert 'caces' in result['tables']
+        assert 'medical_visits' in result['tables']
+        assert 'online_trainings' in result['tables']
+
+    def test_verify_backup_missing_required_tables(self, backup_manager, temp_database):
+        """Test verification fails when required tables are missing."""
+        # Create a separate temporary database without required tables
+        temp_dir = tempfile.mkdtemp()
+        incomplete_db = Path(temp_dir) / "incomplete.db"
+
+        conn = sqlite3.connect(str(incomplete_db))
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE other_table (id INTEGER, data TEXT)")
+        conn.commit()
+        conn.close()
+
+        # Create backup manager for this database
+        incomplete_manager = BackupManager(
+            database_path=incomplete_db,
+            backup_dir=backup_manager.backup_dir
+        )
+
+        backup_path = incomplete_manager.create_backup()
+        result = incomplete_manager.verify_backup(backup_path)
+
+        assert result['valid'] is False
+        assert "Missing required tables" in result['error']
+        assert 'employees' in result['error']
+
+        # Cleanup
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_verify_backup_returns_dict_structure(self, backup_manager):
+        """Test that verification returns proper dict structure."""
+        backup_path = backup_manager.create_backup()
+        result = backup_manager.verify_backup(backup_path)
+
+        # Check all expected keys exist
+        expected_keys = {'valid', 'size_bytes', 'size_mb', 'tables', 'employee_count', 'error'}
+        assert set(result.keys()) == expected_keys
+
+        # Check value types
+        assert isinstance(result['valid'], bool)
+        assert isinstance(result['size_bytes'], int)
+        assert isinstance(result['size_mb'], float)
+        assert isinstance(result['tables'], list)
+        assert isinstance(result['employee_count'], int)

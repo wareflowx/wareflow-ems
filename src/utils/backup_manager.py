@@ -204,3 +204,97 @@ class BackupManager:
             for b in self.backup_dir.glob("employee_manager_*.db")
         )
         return round(total_bytes / (1024 * 1024), 2)
+
+    def verify_backup(self, backup_path: Path) -> dict:
+        """
+        Verify backup file integrity and validity.
+
+        Performs comprehensive verification:
+        - File existence and size check
+        - SQLite database structure validation
+        - Table presence verification
+        - Record count validation
+
+        Args:
+            backup_path: Path to backup file
+
+        Returns:
+            Dictionary with verification results:
+            {
+                'valid': bool,
+                'size_bytes': int,
+                'size_mb': float,
+                'tables': list[str],
+                'employee_count': int,
+                'error': str | None
+            }
+
+        Raises:
+            FileNotFoundError: If backup file doesn't exist
+        """
+        backup_path = Path(backup_path)
+
+        if not backup_path.exists():
+            raise FileNotFoundError(f"Backup not found: {backup_path}")
+
+        result = {
+            'valid': False,
+            'size_bytes': 0,
+            'size_mb': 0.0,
+            'tables': [],
+            'employee_count': 0,
+            'error': None
+        }
+
+        try:
+            # Check file size
+            result['size_bytes'] = backup_path.stat().st_size
+            result['size_mb'] = round(result['size_bytes'] / (1024 * 1024), 2)
+
+            # Minimum size check (1 KB minimum for valid database)
+            if result['size_bytes'] < 1024:
+                result['error'] = f"Backup file too small ({result['size_bytes']} bytes)"
+                return result
+
+            # Verify SQLite database structure
+            conn = sqlite3.connect(f"file:{backup_path}?mode=ro", uri=True)
+            cursor = conn.cursor()
+
+            # Get list of tables
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            result['tables'] = [row[0] for row in cursor.fetchall()]
+
+            # Verify essential tables exist
+            required_tables = {'employees', 'caces', 'medical_visits', 'online_trainings'}
+            missing_tables = required_tables - set(result['tables'])
+            if missing_tables:
+                result['error'] = f"Missing required tables: {missing_tables}"
+                conn.close()
+                return result
+
+            # Count employees to verify data
+            cursor.execute("SELECT COUNT(*) FROM employees")
+            result['employee_count'] = cursor.fetchone()[0]
+
+            # Verify schema integrity with PRAGMA
+            cursor.execute("PRAGMA integrity_check")
+            integrity_result = cursor.fetchone()[0]
+            if integrity_result != "ok":
+                result['error'] = f"Database integrity check failed: {integrity_result}"
+                conn.close()
+                return result
+
+            conn.close()
+
+            # All checks passed
+            result['valid'] = True
+            logger.info(f"Backup verified: {backup_path} ({result['size_mb']} MB, {result['employee_count']} employees)")
+
+        except sqlite3.Error as e:
+            result['error'] = f"SQLite error: {e}"
+            logger.error(f"Backup verification failed (SQLite): {e}")
+        except Exception as e:
+            result['error'] = f"Verification error: {e}"
+            logger.error(f"Backup verification failed: {e}")
+
+        return result
