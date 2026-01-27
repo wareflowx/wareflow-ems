@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-404: Not Found
-=======
 name: PR Checks
 
 on:
@@ -56,4 +53,3 @@ jobs:
   #     - uses: lets-maybe/fix-pr-size@v2
   #       with:
   #         max-size: '2000'
->>>>>>> origin/main

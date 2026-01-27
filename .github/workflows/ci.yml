@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-404: Not Found
-=======
 name: CI
 
 on:
@@ -67,4 +64,3 @@ jobs:
           file: ./coverage.xml
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
->>>>>>> origin/main
