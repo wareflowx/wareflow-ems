@@ -579,7 +579,7 @@ class EmployeeDetailView(BaseView):
             import tkinter.messagebox as messagebox
 
             messagebox.showerror("Erreur", message)
-        except:
+        except (ImportError, RuntimeError, AttributeError):
             print(f"[ERROR] {message}")
 
     def show_info(self, message: str):
@@ -588,7 +588,7 @@ class EmployeeDetailView(BaseView):
             import tkinter.messagebox as messagebox
 
             messagebox.showinfo("Information", message)
-        except:
+        except (ImportError, RuntimeError, AttributeError):
             print(f"[INFO] {message}")
 
     def on_export_complete(self, success: bool, output_path: Optional[Path]) -> None:

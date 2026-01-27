@@ -432,5 +432,5 @@ class EmployeeFormDialog(BaseFormDialog):
             import tkinter.messagebox as messagebox
 
             messagebox.showerror("Erreur de validation", message)
-        except:
+        except (ImportError, RuntimeError, AttributeError):
             print(f"[ERROR] {message}")

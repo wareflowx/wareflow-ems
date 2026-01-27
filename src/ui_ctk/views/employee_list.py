@@ -323,7 +323,7 @@ class EmployeeListView(BaseView):
             import tkinter.messagebox as messagebox
 
             messagebox.showerror("Erreur", message)
-        except:
+        except (ImportError, RuntimeError, AttributeError):
             print(f"[ERROR] {message}")
 
     def get_employees_for_export(self) -> List[Employee]:
