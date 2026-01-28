@@ -24,7 +24,7 @@ def init_database(db_path: Path) -> None:
     database.execute_sql("PRAGMA busy_timeout=5000")
 
     # Import all models here to avoid circular imports
-    from employee.models import Caces, Employee, MedicalVisit, OnlineTraining
+    from employee.models import Caces, Employee, MedicalVisit, OnlineTraining, Contract, ContractAmendment
     from lock.models import AppLock
     from database.migration_model import Migration
 
@@ -35,6 +35,8 @@ def init_database(db_path: Path) -> None:
             Caces,
             MedicalVisit,
             OnlineTraining,
+            Contract,
+            ContractAmendment,
             AppLock,
             Migration,
         ],

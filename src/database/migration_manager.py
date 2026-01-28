@@ -36,7 +36,7 @@ class MigrationManager:
             backup_manager: Optional backup manager for creating pre-migration backups
         """
         self.backup_manager = backup_manager or BackupManager()
-        self.migrations_dir = Path(__file__).parent.parent.parent / "database" / "migrations"
+        self.migrations_dir = Path(__file__).parent / "migrations"
 
     def check_and_migrate(self, auto_migrate: bool = False) -> Tuple[bool, str]:
         """Check if migration is needed and optionally perform it.

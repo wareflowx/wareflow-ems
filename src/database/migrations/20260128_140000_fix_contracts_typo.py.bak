@@ -6,8 +6,8 @@ the error "no such table: contarcts" when loading employee details.
 """
 
 from peewee import *
-from database.base import MigrationBase
-from database.connection import database
+from src.database.base import MigrationBase
+from src.database.connection import database
 
 
 class Migration(MigrationBase):
