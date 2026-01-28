@@ -99,7 +99,7 @@ class Employee(Model):
     # ========== CONTRACT PROPERTIES ==========
 
     @property
-    def current_contract(self) -> "Contract | None":
+    def current_contract(self):
         """
         Get the current active contract.
 
@@ -107,7 +107,11 @@ class Employee(Model):
             Current active Contract object, or None if no active contract
         """
         try:
-            from .models import Contract
+            # Lazy import to avoid circular dependency
+            # Contract is defined later in this same file
+            Contract = globals().get('Contract')
+            if Contract is None:
+                return None
 
             return (
                 Contract.select()
@@ -124,7 +128,7 @@ class Employee(Model):
             return None
 
     @property
-    def contract_history(self) -> list["Contract"]:
+    def contract_history(self):
         """
         Get all contracts in chronological order (newest first).
 
@@ -132,7 +136,9 @@ class Employee(Model):
             List of Contract objects for this employee
         """
         try:
-            from .models import Contract
+            Contract = globals().get('Contract')
+            if Contract is None:
+                return []
 
             return list(Contract.select().where(Contract.employee == self).order_by(Contract.start_date.desc()))
         except Exception:
@@ -147,7 +153,14 @@ class Employee(Model):
             Total days since first hire date, or 0 if no contracts
         """
         try:
-            from .models import Contract
+            Contract = globals().get('Contract')
+            if Contract is None:
+                # Fallback to entry_date if no contracts yet
+                if isinstance(self.entry_date, datetime):
+                    entry_date = self.entry_date.date()
+                else:
+                    entry_date = self.entry_date
+                return (date.today() - entry_date).days if entry_date else 0
 
             first_contract = (
                 Contract.select().where(Contract.employee == self).order_by(Contract.start_date.asc()).first()
