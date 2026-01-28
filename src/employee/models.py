@@ -96,6 +96,123 @@ class Employee(Model):
         """Check if employee is soft-deleted."""
         return self.deleted_at is not None
 
+    # ========== CONTRACT PROPERTIES ==========
+
+    @property
+    def current_contract(self) -> "Contract | None":
+        """
+        Get the current active contract.
+
+        Returns:
+            Current active Contract object, or None if no active contract
+        """
+        try:
+            from .models import Contract
+
+            return (
+                Contract.select()
+                .where(
+                    (Contract.employee == self)
+                    & (Contract.status == "active")
+                    & (Contract.start_date <= date.today())
+                    & ((Contract.end_date.is_null(True)) | (Contract.end_date >= date.today()))
+                )
+                .order_by(Contract.start_date.desc())
+                .first()
+            )
+        except Exception:
+            return None
+
+    @property
+    def contract_history(self) -> list["Contract"]:
+        """
+        Get all contracts in chronological order (newest first).
+
+        Returns:
+            List of Contract objects for this employee
+        """
+        try:
+            from .models import Contract
+
+            return list(Contract.select().where(Contract.employee == self).order_by(Contract.start_date.desc()))
+        except Exception:
+            return []
+
+    @property
+    def tenure_days(self) -> int:
+        """
+        Calculate total tenure in days since first contract.
+
+        Returns:
+            Total days since first hire date, or 0 if no contracts
+        """
+        try:
+            from .models import Contract
+
+            first_contract = (
+                Contract.select().where(Contract.employee == self).order_by(Contract.start_date.asc()).first()
+            )
+
+            if not first_contract:
+                # Fallback to entry_date if no contracts yet
+                if isinstance(self.entry_date, datetime):
+                    entry_date = self.entry_date.date()
+                else:
+                    entry_date = self.entry_date
+                return (date.today() - entry_date).days if entry_date else 0
+
+            return (date.today() - first_contract.start_date).days
+        except Exception:
+            return 0
+
+    @property
+    def experience_years(self) -> float:
+        """
+        Calculate total experience in years.
+
+        Returns:
+            Total years since first hire
+        """
+        return self.tenure_days / 365.25
+
+    @property
+    def position_history(self) -> list[dict]:
+        """
+        Get position changes over time.
+
+        Returns:
+            List of dicts with position, department, dates, contract_type
+        """
+        history = []
+        for contract in self.contract_history:
+            history.append({
+                "position": contract.position,
+                "department": contract.department,
+                "start_date": contract.start_date,
+                "end_date": contract.end_date,
+                "contract_type": contract.contract_type,
+                "status": contract.status,
+            })
+        return history
+
+    @property
+    def salary_history(self) -> list[dict]:
+        """
+        Get salary evolution over time.
+
+        Returns:
+            List of dicts with salary, date, position
+        """
+        history = []
+        for contract in self.contract_history:
+            if contract.gross_salary:
+                history.append({
+                    "salary": float(contract.gross_salary),
+                    "date": contract.start_date,
+                    "position": contract.position,
+                })
+        return history
+
     # ========== CLASS METHODS (QUERIES) ==========
 
     @classmethod
