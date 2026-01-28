@@ -16,7 +16,45 @@ class ContractType:
     CDD = "CDD"
     INTERIM = "Interim"
     ALTERNANCE = "Alternance"
-    ALL = [CDI, CDD, INTERIM, ALTERNANCE]
+    APPRENTICESHIP = "Apprenticeship"
+    INTERNSHIP = "Internship"
+    FREELANCE = "Freelance"
+    ALL = [CDI, CDD, INTERIM, ALTERNANCE, APPRENTICESHIP, INTERNSHIP, FREELANCE]
+
+
+class ContractStatus:
+    """Contract status values."""
+
+    ACTIVE = "active"
+    ENDED = "ended"
+    CANCELLED = "cancelled"
+    PENDING = "pending"
+    ALL = [ACTIVE, ENDED, CANCELLED, PENDING]
+
+
+class ContractEndReason:
+    """Reasons for contract ending."""
+
+    RESIGNATION = "resignation"
+    TERMINATION = "termination"
+    COMPLETION = "completion"
+    MUTUAL_AGREEMENT = "mutual_agreement"
+    RETIREMENT = "retirement"
+    DEATH = "death"
+    OTHER = "other"
+    ALL = [RESIGNATION, TERMINATION, COMPLETION, MUTUAL_AGREEMENT, RETIREMENT, DEATH, OTHER]
+
+
+class ContractAmendmentType:
+    """Types of contract amendments."""
+
+    SALARY_CHANGE = "salary_change"
+    POSITION_CHANGE = "position_change"
+    DEPARTMENT_CHANGE = "department_change"
+    HOURS_CHANGE = "hours_change"
+    CONTRACT_TYPE_CHANGE = "contract_type_change"
+    OTHER = "other"
+    ALL = [SALARY_CHANGE, POSITION_CHANGE, DEPARTMENT_CHANGE, HOURS_CHANGE, CONTRACT_TYPE_CHANGE, OTHER]
 
 
 class VisitType:
@@ -76,3 +114,51 @@ DEFAULT_ROLES = [
     "Réceptionnaire",
     "Cariste",
 ]
+
+# Default departments for contracts
+DEFAULT_DEPARTMENTS = [
+    "Logistics",
+    "Production",
+    "Maintenance",
+    "Administration",
+    "Warehouse",
+    "Shipping",
+    "Receiving",
+]
+
+# Default positions for contracts
+DEFAULT_POSITIONS = [
+    "Operator",
+    "Warehouse Worker",
+    "Forklift Operator",
+    "Team Lead",
+    "Supervisor",
+    "Manager",
+]
+
+# Default weekly hours by contract type
+DEFAULT_WEEKLY_HOURS = {
+    "CDI": 35.0,
+    "CDD": 35.0,
+    "Interim": 35.0,
+    "Alternance": 35.0,
+    "Apprenticeship": 39.0,
+    "Internship": 35.0,
+    "Freelance": 35.0,
+}
+
+# Standard trial period duration in days by contract type
+TRIAL_PERIOD_DAYS = {
+    "CDI": 60,  # 2 months for CDI
+    "CDD": None,  # No statutory trial period for CDD
+    "Interim": None,  # No trial period for interim
+    "Alternance": 45,  # 45 days for apprenticeship
+    "Apprenticeship": 45,
+    "Internship": None,
+    "Freelance": None,
+}
+
+# Alert thresholds for contracts (in days)
+CONTRACT_EXPIRATION_WARNING_DAYS = 90
+CONTRACT_EXPIRATION_CRITICAL_DAYS = 30
+TRIAL_PERIOD_WARNING_DAYS = 7
