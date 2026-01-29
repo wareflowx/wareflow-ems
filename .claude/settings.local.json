@@ -27,7 +27,8 @@
       "Bash(python:*)",
       "Bash(git tag:*)",
       "Bash(git show:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(git push:*)"
     ]
   }
 }
