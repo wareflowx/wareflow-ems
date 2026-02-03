@@ -705,3 +705,107 @@ def ensure_database_directory() -> Path:
     db_dir = get_database_dir()
     db_dir.mkdir(parents=True, exist_ok=True)
     return db_dir
+
+
+def ensure_default_config() -> Path | None:
+    """
+    Create default config.yaml if no config file exists.
+
+    This function checks for existing config files (config.yaml, config.yml, config.json).
+    If none exist, it creates a config.yaml file with default values and helpful comments.
+
+    Returns:
+        Path to created config.yaml, or None if config already exists or YAML not available
+
+    Example:
+        >>> config_path = ensure_default_config()
+        >>> if config_path:
+        ...     print(f"Created: {config_path}")
+    """
+    # Check if any config file already exists
+    for filename in ["config.yaml", "config.yml", "config.json"]:
+        if Path(filename).exists():
+            return None  # Config already exists, don't overwrite
+
+    # Check if YAML is available
+    if not YAML_AVAILABLE:
+        # Can't create YAML file, will use defaults
+        return None
+
+    # Create default config.yaml with comments
+    default_config_content = """# Wareflow EMS Configuration File
+# This file controls application behavior and settings.
+#
+# Format: YAML (recommended over JSON for readability)
+# - Comments start with # (like this line)
+# - Indentation matters (use spaces, not tabs)
+# - Strings don't need quotes (most of the time)
+
+# ============================================================================
+# ALERT SETTINGS
+# ============================================================================
+# Configure when alerts are shown for expiring certifications and visits
+alerts:
+  # Warning period: Show warnings when expiration is within this many days
+  warning_days: 30
+
+  # Critical period: Show critical alerts when expiration is within this many days
+  critical_days: 7
+
+# ============================================================================
+# LOCK SETTINGS
+# ============================================================================
+# Prevent multiple users from modifying the database simultaneously
+lock:
+  # Auto-lock timeout: Release lock after this many minutes of inactivity
+  timeout_minutes: 2
+
+  # Heartbeat interval: Send heartbeat signal every N seconds to maintain lock
+  heartbeat_interval_seconds: 30
+
+# ============================================================================
+# ORGANIZATION SETTINGS
+# ============================================================================
+# Define your organization structure (roles and workspaces)
+# These values are used in employee dropdowns and validation
+organization:
+  # Job positions/roles in your organization
+  roles:
+    - Cariste
+    - Préparateur de commandes
+    - Magasinier
+    - Réceptionnaire
+    - Gestionnaire
+    - Chef d'équipe
+
+  # Physical work areas/locations in your warehouse
+  workspaces:
+    - Quai
+    - Zone A
+    - Zone B
+    - Zone C
+    - Bureau
+    - Stockage
+
+# ============================================================================
+# ADVANCED SETTINGS (OPTIONAL)
+# ============================================================================
+# These settings have sensible defaults and rarely need to be changed
+#
+# Database location (use environment variables DATABASE_DIR and DATABASE_NAME instead)
+# See README.md for more details on configuration
+"""
+
+    try:
+        config_path = Path("config.yaml")
+
+        # Write the default config file
+        with open(config_path, "w", encoding="utf-8") as f:
+            f.write(default_config_content)
+
+        return config_path
+
+    except (IOError, OSError) as e:
+        # Silent fail - application will use defaults
+        # This avoids issues in read-only environments
+        return None

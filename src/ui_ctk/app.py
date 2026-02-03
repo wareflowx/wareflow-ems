@@ -253,6 +253,15 @@ def main():
     setup_logging(level="INFO", enable_console=True, enable_file=True)
     logger.info(f"Starting {APP_NAME} v{APP_VERSION}")
 
+    # Step 0.5: Ensure default config file exists
+    from utils.config import ensure_default_config
+    config_path = ensure_default_config()
+    if config_path:
+        print(f"[OK] Default config created: {config_path}")
+        print(f"     You can customize this file to change application settings")
+    else:
+        print("[INFO] Using existing configuration or defaults")
+
     # Step 1: Setup CustomTkinter
     setup_customtkinter()
 

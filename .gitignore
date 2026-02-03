@@ -79,6 +79,11 @@ exports/
 logs/
 backups/
 
+# User configuration (auto-generated on first run)
+config.yaml
+config.yml
+config.json
+
 # Test files in root directory (ad-hoc tests)
 test_*.py
 
