@@ -44,10 +44,10 @@ class Employee(Model):
     current_status = CharField(index=True)  # Enum: 'active', 'inactive'
     workspace = CharField(index=True)
     role = CharField(index=True)
-    contract_type = CharField(index=True)  # Enum: 'CDI', 'CDD', 'Interim', 'Alternance'
+    contract_type = CharField(index=True, null=True)  # Optional: 'CDI', 'CDD', 'Interim', 'Alternance'
 
     # Employment Dates
-    entry_date = DateField()
+    entry_date = DateField(null=True)  # Optional: entry date can be set later
 
     # Optional
     avatar_path = CharField(null=True)
@@ -79,6 +79,10 @@ class Employee(Model):
     @property
     def seniority(self) -> int:
         """Complete years of service."""
+        # Return 0 if no entry date
+        if self.entry_date is None:
+            return 0
+
         # Ensure entry_date is a date object (not datetime)
         if isinstance(self.entry_date, datetime):
             entry_date = self.entry_date.date()

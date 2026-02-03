@@ -173,13 +173,13 @@ class EmployeeFormDialog(BaseFormDialog):
         entry.pack(fill="x", pady=(0, 5))
 
     def create_status_dropdown(self, parent, label: str, variable: ctk.StringVar, column: int):
-        """Create status dropdown field."""
+        """Create status dropdown field (optional with default)."""
         # Container
         container = ctk.CTkFrame(parent, fg_color="transparent")
         container.pack(side="left", fill="both", expand=True, padx=5)
 
         # Label
-        label_widget = ctk.CTkLabel(container, text=f"{label} *", font=("Arial", 11, "bold"), anchor="w")
+        label_widget = ctk.CTkLabel(container, text=label, font=("Arial", 11), anchor="w")
         label_widget.pack(fill="x", pady=(5, 2))
 
         # Dropdown
@@ -215,13 +215,13 @@ class EmployeeFormDialog(BaseFormDialog):
         dropdown.pack(fill="x", pady=(0, 5))
 
     def create_contract_dropdown(self, parent, label: str, variable: ctk.StringVar, column: int):
-        """Create contract type dropdown field."""
+        """Create contract type dropdown field (optional)."""
         # Container
         container = ctk.CTkFrame(parent, fg_color="transparent")
         container.pack(side="left", fill="both", expand=True, padx=5)
 
         # Label
-        label_widget = ctk.CTkLabel(container, text=f"{label} *", font=("Arial", 11, "bold"), anchor="w")
+        label_widget = ctk.CTkLabel(container, text=label, font=("Arial", 11), anchor="w")
         label_widget.pack(fill="x", pady=(5, 2))
 
         # Dropdown
@@ -229,13 +229,13 @@ class EmployeeFormDialog(BaseFormDialog):
         dropdown.pack(fill="x", pady=(0, 5))
 
     def create_date_field(self, parent, label: str, variable: ctk.StringVar, column: int):
-        """Create date entry field."""
+        """Create date entry field (optional)."""
         # Container
         container = ctk.CTkFrame(parent, fg_color="transparent")
         container.pack(side="left", fill="both", expand=True, padx=5)
 
         # Label
-        label_widget = ctk.CTkLabel(container, text=f"{label} *", font=("Arial", 11, "bold"), anchor="w")
+        label_widget = ctk.CTkLabel(container, text=label, font=("Arial", 11), anchor="w")
         label_widget.pack(fill="x", pady=(5, 2))
 
         # Date entry
@@ -283,6 +283,9 @@ class EmployeeFormDialog(BaseFormDialog):
         """
         Validate form fields.
 
+        Only validates required fields: first_name, last_name, workspace, role.
+        Optional fields (status, contract_type, entry_date, email, phone) are validated only if provided.
+
         Returns:
             Tuple of (is_valid, error_message)
         """
@@ -315,22 +318,20 @@ class EmployeeFormDialog(BaseFormDialog):
             if not self.validate_phone(phone):
                 return False, VALIDATION_PHONE_INVALID
 
-        # Date validation
+        # Date validation (if provided)
         entry_date_str = self.entry_date_var.get().strip()
-        if not entry_date_str:
-            return False, VALIDATION_DATE_REQUIRED
+        if entry_date_str:
+            try:
+                entry_date = datetime.strptime(entry_date_str, DATE_FORMAT).date()
+            except ValueError:
+                return False, VALIDATION_DATE_INVALID
 
-        try:
-            entry_date = datetime.strptime(entry_date_str, DATE_FORMAT).date()
-        except ValueError:
-            return False, f"{VALIDATION_DATE_INVALID} - {VALIDATION_DATE_INVALID}"
+            # Date range validation
+            if entry_date > date.today():
+                return False, VALIDATION_DATE_FUTURE
 
-        # Date range validation
-        if entry_date > date.today():
-            return False, VALIDATION_DATE_FUTURE
-
-        if entry_date.year < 2000:
-            return False, VALIDATION_DATE_TOO_OLD
+            if entry_date.year < 2000:
+                return False, VALIDATION_DATE_TOO_OLD
 
         return True, None
 
@@ -370,6 +371,16 @@ class EmployeeFormDialog(BaseFormDialog):
         """Save employee to database with validation."""
         controller = EmployeeController()
 
+        # Prepare entry date (convert string to date object if provided)
+        entry_date_str = self.entry_date_var.get().strip()
+        entry_date = None
+        if entry_date_str:
+            try:
+                entry_date = datetime.strptime(entry_date_str, DATE_FORMAT).date()
+            except ValueError:
+                # This should have been caught by validate(), but handle gracefully
+                entry_date = None
+
         # Prepare employee data
         employee_data = {
             'external_id': f"EMP-{datetime.now().strftime('%Y%m%d%H%M%S')}",  # Generate external_id
@@ -380,8 +391,8 @@ class EmployeeFormDialog(BaseFormDialog):
             'current_status': 'active' if self.status_var.get() == STATUS_ACTIVE else 'inactive',
             'workspace': self.workspace_var.get().strip(),
             'role': self.role_var.get().strip(),
-            'contract_type': self.contract_type_var.get(),
-            'entry_date': self.entry_date_var.get().strip() or None,
+            'contract_type': self.contract_type_var.get() or None,  # Allow None
+            'entry_date': entry_date,
         }
 
         try:
