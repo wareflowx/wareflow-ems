@@ -160,11 +160,15 @@ class EmployeeDetailView(BaseView):
         self.create_info_row(info_frame, "Statut:", STATUS_ACTIVE if self.employee.is_active else STATUS_INACTIVE)
         self.create_info_row(info_frame, "Zone de travail:", self.employee.workspace)
         self.create_info_row(info_frame, "Poste:", self.employee.role)
-        self.create_info_row(info_frame, "Type de contrat:", self.employee.contract_type)
 
-        # Entry date
-        entry_date_str = self.employee.entry_date.strftime(DATE_FORMAT)
-        self.create_info_row(info_frame, "Date d'entrée:", entry_date_str)
+        # Contract type (optional)
+        if self.employee.contract_type:
+            self.create_info_row(info_frame, "Type de contrat:", self.employee.contract_type)
+
+        # Entry date (optional)
+        if self.employee.entry_date:
+            entry_date_str = self.employee.entry_date.strftime(DATE_FORMAT)
+            self.create_info_row(info_frame, "Date d'entrée:", entry_date_str)
 
         # Seniority
         seniority_years = self.employee.seniority
