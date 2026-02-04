@@ -38,8 +38,6 @@ CONTRACT_TYPES = {
     "Alternance": "Alternance",
 }
 
-CONTRACT_TYPE_CHOICES = ["CDI", "CDD", "Interim", "Alternance"]
-
 # CACES Types (French)
 CACES_TYPES = [
     "R489-1A",
@@ -188,24 +186,6 @@ VALIDATION_WORKSPACE_REQUIRED = "L'espace de travail est requis"
 VALIDATION_ROLE_REQUIRED = "Le rôle est requis"
 VALIDATION_CONTRACT_REQUIRED = "Le type de contrat est requis"
 VALIDATION_REQUIRED_FIELD = "Ce champ est obligatoire"
-
-# Workspaces
-WORKSPACE_ZONES = ["Zone A", "Zone B", "Zone C", "Zone D", "Zone E"]
-
-# Roles
-ROLE_CARISTE = "Cariste"
-ROLE_PREPARATEUR = "Préparateur de commandes"
-ROLE_MAGASINIER = "Magasinier"
-ROLE_RECEVEUR = "Réceptionnaire"
-ROLE_EXPEDITEUR = "Expéditeur"
-
-ROLE_CHOICES = [
-    ROLE_CARISTE,
-    ROLE_PREPARATEUR,
-    ROLE_MAGASINIER,
-    ROLE_RECEVEUR,
-    ROLE_EXPEDITEUR,
-]
 
 # Section Titles
 SECTION_INFO = "Informations"
